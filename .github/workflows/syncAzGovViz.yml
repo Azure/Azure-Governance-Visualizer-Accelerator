@@ -1,0 +1,87 @@
+name: SyncAzGovViz
+
+env:
+  AutoUpdateAzGovViz: 'true'
+  AzGovVizRepoPath: 'https://github.com/Azure/Azure-Governance-Visualizer/archive/refs/heads/master.zip'
+  AzGovVizVersionPath: 'https://raw.githubusercontent.com/Azure/Azure-Governance-Visualizer/master/version.json'
+
+on:
+  #schedule:
+  # - cron:  '0 1 * * *'
+
+  workflow_dispatch:
+  workflow_run:
+    workflows: [DeployAzGovVizAccelerator]
+    types:
+      - completed
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+
+  SyncAzGovViz:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} || ${{github.event_name == 'workflow_dispatch'}} || ${{github.event_name == 'schedule'}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: UpdateAzGovVizAutomatically
+        continue-on-error: true
+        if: |
+          env.AutoUpdateAzGovViz == 'true' && github.repository != 'Azure/Azure-Governance-Visualizer-Accelerator'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          currentVersion=$(jq -r .AzGovVizVersion version.json)
+          upStreamVersion=$(curl $AzGovVizVersionPath | jq -r '.ProductVersion')
+          if [ $currentVersion != $upStreamVersion ]
+          then
+            wget $AzGovVizRepoPath
+            unzip master.zip
+            cp -r Azure-Governance-Visualizer-master/pwsh .
+            cp -r Azure-Governance-Visualizer-master/img .
+            rm ./master.zip
+            rm -rf Azure-Governance-Visualizer-master/
+            jq '.AzGovVizVersion = "'$upStreamVersion'"' version.json > tmp.json && mv tmp.json version.json
+            git config --global user.email "AzureGovernanceVisualizerGHActions@ghActions.com"
+            git config --global user.name "azgvz"
+            git config pull.rebase false
+            git add --all
+            git commit -m "$GITHUB_WORKFLOW $GITHUB_JOB"
+            git push
+              echo "You are on the latest AzGovViz version"
+          fi
+
+      - name: UpdateAzGovVizPR
+        continue-on-error: true
+        if: |
+          env.AutoUpdateAzGovViz == 'false' && github.repository != 'Azure/Azure-Governance-Visualizer-Accelerator'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          currentVersion=$(jq -r .AzGovVizVersion version.json)
+          upStreamVersion=$(curl $AzGovVizVersionPath | jq -r '.ProductVersion')
+          if [ $currentVersion != $upStreamVersion ]
+          then
+            wget $AzGovVizRepoPath
+            unzip master.zip
+            cp -r Azure-Governance-Visualizer-master/pwsh .
+            cp -r Azure-Governance-Visualizer-master/img .
+            rm ./master.zip
+            rm -rf Azure-Governance-Visualizer-master/
+            jq '.AzGovVizVersion = "'$upStreamVersion'"' version.json > tmp.json && mv tmp.json version.json
+            git config --global user.email "AzureGovernanceVisualizerGHActions@ghActions.com"
+            git config --global user.name "azgvz"
+            git checkout -b "AzGovViz_$upStreamVersion"
+            git config pull.rebase false
+            git add --all
+            git commit -m "$GITHUB_WORKFLOW $GITHUB_JOB"
+            git push --set-upstream origin "AzGovViz_$upStreamVersion"
+            gh pr create --title "New version - $upStreamVersion" --body "New AzGovViz version - $upStreamVersion"
+          else
+            echo "You are on the latest AzGovViz version"
+          fi

@@ -1,0 +1,37 @@
+name: DeployAzGovVizAccelerator
+
+on:
+  workflow_dispatch:
+
+jobs:
+  AzureGovernanceVisualizer:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+
+      - name: Deploy web app to Azure
+        id: deployWebApp
+        if: ${{github.event.inputs.PublishTo}} == 'Azure Web App'
+        uses: azure/arm-deploy@v1
+        with:
+          scope: resourcegroup
+          subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
+          resourceGroupName: ${{vars.RESOURCE_GROUP_NAME}}
+          template: ./bicep/webApp.bicep
+          parameters: ./bicep/webApp.parameters.json webAppName=${{vars.WEB_APP_NAME}} managementGroupId=${{secrets.MANAGEMENT_GROUP_ID}} clientId=${{ secrets.AAD_CLIENT_ID }} clientSecret=${{ secrets.AAD_CLIENT_SECRET }}
+          failOnStdErr: false
+
