@@ -35,6 +35,7 @@ permissions:
 jobs:
 
   AzureGovernanceVisualizer:
+    if: ${{ github.repository != 'Azure/Azure-Governance-Visualizer-Accelerator' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
