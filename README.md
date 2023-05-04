@@ -201,10 +201,10 @@ Write-host "AzGovViz service principal created successfully."
     ### Define variables
     $directoryToCloneAccelerator = "<Local directory to clone the Accelerator's repository>"
     $GitHubOrg = "<GitHub organization to use>"
-    $GitHubRepository = "<GitHub repository name>"
+    $GitHubRepository = "Azure-Governance-Visualizer"
 
     ### Create a new repository from template
-    gh repo create 'Azure-Governance-Visualizer' --template Azure/Azure-Governance-Visualizer-Accelerator --private
+    gh repo create $GitHubRepository --template Azure/Azure-Governance-Visualizer-Accelerator --private
     New-Item -ItemType Directory -Path $directoryToCloneAccelerator
     cd $directoryToCloneAccelerator
     gh repo clone "$GitHubOrg/$GitHubRepository"
