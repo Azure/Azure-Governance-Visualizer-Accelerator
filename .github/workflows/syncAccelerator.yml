@@ -27,12 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - uses: tibdex/github-app-token@v1
-        id: generate-token
-        with:
-          app_id: ${{ secrets.APP_ID }}
-          private_key: ${{ secrets.APP_PRIVATE_KEY }}
-
       - name: Local repository checkout
         uses: actions/checkout@v3
         with:
@@ -123,4 +117,4 @@ jobs:
           fi
         working-directory: ${{ github.repository }}
         env:
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -483,7 +483,7 @@ To deploy the accelerator after having the pre-requisites ready, you need to per
 
 ### keeping the Azure Governance Visualizer Accelerator code up-to-date
 
-- To keep the Azure Governance Visualizer Accelerator code up-to-date, the workflow _SyncAccelerator_ runs on a schedule to check for new versions. Everytime there is a new update to the accelerator's code, you would get a Pull Request submitted to your repository.
+- To keep the Azure Governance Visualizer Accelerator code up-to-date, the workflow _SyncAccelerator_ runs on a schedule to check for new versions. Everytime there is a new update to the accelerator's code, you would get a Pull Request submitted to your repository and the new release will be merged to a _releases_ folder where you can move to newer versions of this accelerator at your own pace.
 
 ## Sources to documentation
 
