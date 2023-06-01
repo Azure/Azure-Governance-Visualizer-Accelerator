@@ -60,7 +60,7 @@ jobs:
         uses: azure/powershell@v1
         with:
           inlineScript: |
-            . .\$($env:ScriptDir)\$($env:ScriptFile) -ManagementGroupId ${env:ManagementGroupId} -SubscriptionId4AzContext ${{secrets.SUBSCRIPTION_ID}} -ScriptPath ${env:ScriptDir} -OutputPath ${env:OutputPath} -GitHubActionsOIDC -NoPIMEligibility
+            . .\$($env:ScriptDir)\$($env:ScriptFile) -ManagementGroupId ${env:ManagementGroupId} -SubscriptionId4AzContext ${{secrets.SUBSCRIPTION_ID}} -ScriptPath ${env:ScriptDir} -OutputPath ${env:OutputPath} -GitHubActionsOIDC
           azPSVersion: "latest"
 
       - name: Push Azure Governance Visualizer output to repository
