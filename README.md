@@ -1,4 +1,4 @@
-# Azure Governance Visualizer (AzGovViz) Accelerator
+# Azure Governance Visualizer (AzGovViz) Accelerator 
 
 ## Description
 
