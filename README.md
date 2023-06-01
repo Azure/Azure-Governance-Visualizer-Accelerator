@@ -84,11 +84,11 @@
 
     ```POWERSHELL
     $parameters4AzAPICallModule = @{
-        #SubscriptionId4AzContext = $null #specify Subscription Id
-        #DebugAzAPICall = $true
-        #WriteMethod = 'Output' #Debug, Error, Host, Information, Output, Progress, Verbose, Warning (default: host)
-        #DebugWriteMethod = 'Warning' #Debug, Error, Host, Information, Output, Progress, Verbose, Warning (default: host)
-        #SkipAzContextSubscriptionValidation = $true #Use if the account doesn´t have any permissions on Management Groups, Subscriptions, Resource Groups or Resources
+       #SubscriptionId4AzContext = $null #specify Subscription Id
+       #DebugAzAPICall = $true
+       #WriteMethod = 'Output' #Debug, Error, Host, Information, Output, Progress, Verbose, Warning (default: host)
+       #DebugWriteMethod = 'Warning' #Debug, Error, Host, Information, Output, Progress, Verbose, Warning (default: host)
+       #SkipAzContextSubscriptionValidation = $true #Use if the account doesn´t have any permissions on Management Groups, Subscriptions, Resource Groups or Resources
     }
 
     $azAPICallConf = initAzAPICall @parameters4AzAPICallModule
@@ -160,7 +160,7 @@ $AzGovVizAppObjectId = (AzAPICall -method POST -body $body -uri "$($azAPICallCon
 do {
     Write-Host "Waiting for the AzGovViz service principal to get created..."
     Start-Sleep -seconds 20
-    $AzGovVizAppId = (AzAPICall -method GET -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$AzGovVizAppObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual').appId
+    $AzGovVizAppId = (AzAPICall -method GET -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$AzGovVizAppObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual' -skipOnErrorCode 404).appId
 } until ($null -ne $AzGovVizAppId)
 
 Write-host "AzGovViz service principal created successfully."
@@ -205,7 +205,7 @@ Write-host "AzGovViz service principal created successfully."
 
     ### Create a new repository from template
     gh repo create $GitHubRepository --template Azure/Azure-Governance-Visualizer-Accelerator --private
-    New-Item -ItemType Directory -Path $directoryToCloneAccelerator
+    New-Item -ItemType Directory -Path $directoryToCloneAccelerator -Force
     cd $directoryToCloneAccelerator
     gh repo clone "$GitHubOrg/$GitHubRepository"
     Set-Location $GitHubRepository
@@ -279,6 +279,7 @@ AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].M
 #### PowerShell
 
   ```POWERSHELL
+    # 2-60 Alphanumeric, hyphens and Unicode characters.Can't start or end with hyphen. A web site must have a globally unique name
     $webAppName = "<Azure Web App name to publish AzGovViz>"
     $WebApplicationAppName = "<App registration name that will be used to add Azure AD authentication to the web app>"
 
