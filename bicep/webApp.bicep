@@ -97,4 +97,12 @@ resource webAppSettings 'Microsoft.Web/sites/config@2022-03-01' = {
 
 }
 
+resource WebAppPublishSettings 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-09-01' = {
+  parent: webApp
+  name: 'scm'
+  properties: {
+    allow: true
+  }
+}
+
 output webAppName string = webApp.name
