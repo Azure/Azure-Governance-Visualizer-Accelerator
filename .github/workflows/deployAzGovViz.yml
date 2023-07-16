@@ -68,6 +68,7 @@ jobs:
           git config --global user.email "AzureGovernanceVisualizerGHActions@ghActions.com"
           git config --global user.name "azgvz"
           git config pull.rebase false
+          git pull
           git add --all
           git commit -m "$GITHUB_WORKFLOW $GITHUB_JOB"
           git push
