@@ -372,10 +372,11 @@ $webAppSPAppSecret = (AzAPICall -method POST -body $body -uri "$($azAPICallConf[
 >To assign roles, you must have '__Microsoft.Authorization/roleAssignments/write__' permissions on the target Management Group scope (such as the built-in RBAC Role '__User Access Administrator__' or '__Owner__')
 
   ```POWERSHELL
+    $subscriptionId = "<Subscription Id>"
     $resourceGroupName = "Name of the Resource Group where the Azure Web App will be created>"
     $location = "<Azure Region for the Azure Web App>"
 
-    New-AzResourceGroup -Name $resourceGroupName -Location $location
+    New-AzResourceGroup -Name $resourceGroupName -Location $location -s
     New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "Web Plan Contributor" -ResourceGroupName $resourceGroupName
     New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "WebSite Contributor" -ResourceGroupName $resourceGroupName
 
