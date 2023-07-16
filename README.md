@@ -310,7 +310,7 @@ $webAppSPObjectId = $webAppSP.Id
 
 do {
     Write-Host "Waiting for the Azure WebApp app registration to get created..."
-    Start-Sleep -seconds 20
+    Start-Sleep -seconds 30
     $webApp = AzAPICall -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$webAppSPObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual'
 
 } until ( $null -ne $webApp)
