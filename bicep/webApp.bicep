@@ -72,6 +72,8 @@ resource authSettings 'Microsoft.Web/sites/config@2022-03-01' = {
   properties: {
     globalValidation: {
       requireAuthentication: true
+      redirectToProvider: 'azureActiveDirectory'
+      unauthenticatedClientAction: 'RedirectToLoginPage'
     }
     identityProviders: {
       azureActiveDirectory: {
