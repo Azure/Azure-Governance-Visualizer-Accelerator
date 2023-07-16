@@ -376,6 +376,7 @@ $webAppSPAppSecret = (AzAPICall -method POST -body $body -uri "$($azAPICallConf[
     $resourceGroupName = "Name of the Resource Group where the Azure Web App will be created>"
     $location = "<Azure Region for the Azure Web App>"
 
+    Select-AzSubscription -SubscriptionId $subscriptionId
     New-AzResourceGroup -Name $resourceGroupName -Location $location
     New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "Web Plan Contributor" -ResourceGroupName $resourceGroupName
     New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "WebSite Contributor" -ResourceGroupName $resourceGroupName
