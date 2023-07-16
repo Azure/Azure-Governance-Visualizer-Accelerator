@@ -76,7 +76,12 @@
 - Install [AzAPICall](https://github.com/JulianHayward/AzAPICall) and connect to Azure
 
     ```POWERSHELL
-    Install-Module -Name AzAPICall
+    $module = Get-Module -Name "AzAPICall" -ListAvailable
+    if ($module) {
+      Update-Module -Name "AzAPICall" -Force
+    } else {
+      Install-Module -Name AzAPICall
+    }
     Connect-AzAccount
     ```
 
