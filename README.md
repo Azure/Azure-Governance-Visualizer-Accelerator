@@ -58,7 +58,7 @@
     - Click on '__Microsoft Graph__'
     - Click on '__Application permissions__'
     - Select the following set of permissions and click '__Add permissions__'
-      - __Application / Application.Read.All__
+        - __Application / Application.Read.All__
         - __Group / Group.Read.All__
         - __User / User.Read.All__
         - __PrivilegedAccess / PrivilegedAccess.Read.AzureResources__
@@ -281,6 +281,21 @@ AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].M
 
 - Create an [app registration](https://learn.microsoft.com/azure/app-service/configure-authentication-provider-aad#-step-1-create-an-app-registration-in-azure-ad-for-your-app-service-app) in Azure AD for your Azure App Web app
 
+- In the Redirect URIs section, select Web for platform and type the URI in the following format: "https://<webapp_name>.azurewebsites.net/.auth/login/aad/callback"
+- Click on _Authentication_ and under _Implicit grant and hybrid flows_, enable ID tokens to allow OpenID Connect user sign-ins from App Service. Select Save.
+
+    ![Screenshot showing enabling Open ID in app registration](./media/app_registration_openID.png)
+
+- From the left navigation, select Expose an API > Add > Save.
+
+    ![Screenshot showing exposing an API](./media/app_registration_expose_api.png)
+
+    ![Screenshot showing exposing an API](./media/app_registration_expose_api_add.png)
+
+- Click on _Add a scope_ and provide the values as the screenshot.
+
+    ![Screenshot showing adding a scope to the API](./media/app_registration_expose_api_addScope.png)
+
 #### PowerShell
 
   ```POWERSHELL
@@ -391,9 +406,9 @@ $webAppSPAppSecret = (AzAPICall -method POST -body $body -uri "$($azAPICallConf[
 
 | Secret                  | Value                                                                                                |
 | ----------------------- | ---------------------------------------------------------------------------------------------------- |
-| __CLIENT_ID__           | objectId of the identity that shall run Azure Governance Visualizer                                  |
-| __AAD_CLIENT_ID__       | objectId of the identity that will be used to configure Azure AD authentication to the Azure Web App |
-| __AAD_CLIENT_SECRET__   | secret of the identity that will be used to configure Azure AD authentication to the Azure Web App   |
+| __CLIENT_ID__           | Application Id of the identity that shall run Azure Governance Visualizer                                  |
+| __AAD_CLIENT_ID__       | Application Id of the identity that will be used to configure Azure AD authentication to the Azure Web App |
+| __AAD_CLIENT_SECRET__   | Secret of the identity that will be used to configure Azure AD authentication to the Azure Web App   |
 | __SUBSCRIPTION_ID__     | Subscription Id                                                                                      |
 | __TENANT_ID__           | Tenant Id                                                                                            |
 | __MANAGEMENT_GROUP_ID__ | Management group Id                                                                                  |
