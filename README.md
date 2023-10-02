@@ -397,6 +397,8 @@ $webAppSPAppSecret = (AzAPICall -method POST -body $body -uri "$($azAPICallConf[
     New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "WebSite Contributor" -ResourceGroupName $resourceGroupName
 
   ```
+>NOTE
+>Make sure that the resource provider _Microsoft.Web_ is registered on the subscription where the web app hosting AzGovViz will be hosted.
 
 ### 7. Create the GitHub secrets, variables and permissions
 
