@@ -29,7 +29,7 @@ Follow these steps to deploy the Azure Governance Visualizer accelerator into yo
 
 ### 1. Create a service principal (Microsoft Entra ID app registration) to run Azure Governance Visualizer
 
-> NOTE: To grant API permissions and grant admin consent for the directory, you must have 'Privileged Role Administrator' or 'Global Administrator' role assigned [Assign Microsoft Entra roles to users](https://learn.microsoft.com/entra/identity/role-based-access-control/manage-roles-portal)
+> NOTE: To grant API permissions and grant admin consent for the directory, you must have 'Privileged Role Administrator' or 'Global Administrator' role assigned. See [Assign Microsoft Entra roles to users](https://learn.microsoft.com/entra/identity/role-based-access-control/manage-roles-portal) for instructions.
 
 **:computer_mouse: Use the Microsoft Entra admin center to create the service principal:**
 
@@ -335,7 +335,7 @@ $webAppSPAppSecret = (AzAPICall -method POST -body $body -uri "$($azAPICallConf[
 
 > NOTES:
 >
-> To assign roles, you must have '**Microsoft.Authorization/roleAssignments/write**' permissions on the target management group scope (such as the built-in RBAC role '**User Access Administrator**' or '**Owner**')
+> To assign roles, you must have '**Microsoft.Authorization/roleAssignments/write**' permissions on the target management group scope (such as the built-in RBAC role '**User Access Administrator**' or '**Owner**').
 >
 > Make sure that the resource provider _Microsoft.Web_ is registered on the subscription where the Azure Web App hosting AzGovViz will be deployed.
 
