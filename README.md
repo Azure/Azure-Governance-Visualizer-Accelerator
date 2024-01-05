@@ -6,7 +6,7 @@
 
 ## Deployment guide
 
-Follow these steps to deploy the Azure Governance Visualizer accelerator into your own Azure and Microsoft Entra ID tenant. Most steps have both **portal based** (:computer_mouse:) and **PowerShell based** (:keyboard:) instructions. Use whichever you feel is appropriate for your situation, they both produce the same results.
+Follow these steps to deploy the Azure Governance Visualizer accelerator into your own Azure and Microsoft Entra ID tenant. Most steps have both **portal based** ( :computer_mouse: ) and **PowerShell based** ( :keyboard: ) instructions. Use whichever you feel is appropriate for your situation, they both produce the same results.
 
 ### 1. Create a service principal (Microsoft Entra ID app registration) to run Azure Governance Visualizer
 
