@@ -8,7 +8,7 @@ param location string = resourceGroup().location
 @description('The SKU of App Service Plan.')
 param sku string
 
-@description('The Runtime stack of current web app')
+@description('The Runtime stack of the web app')
 param runtimeStack string
 
 @description('App Service Plan name')
@@ -33,9 +33,6 @@ param clientSecret string
 @description('The AzGovViz management group ID')
 param managementGroupId string
 
-var loginEndpointUri = environment().authentication.loginEndpoint
-var defaultDocument = 'AzGovViz_${managementGroupId}.html'
-
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: appServicePlanName
   location: location
@@ -57,51 +54,47 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
       publicNetworkAccess: publicNetworkAccess
       windowsFxVersion: runtimeStack
       defaultDocuments: [
-        defaultDocument
+        'AzGovViz_${managementGroupId}.html'
       ]
     }
   }
   identity: {
     type: 'SystemAssigned'
   }
-}
 
-resource authSettings 'Microsoft.Web/sites/config@2022-03-01' = {
-  parent: webApp
-  name: 'authsettingsV2'
-  properties: {
-    globalValidation: {
-      requireAuthentication: true
-      redirectToProvider: 'azureActiveDirectory'
-      unauthenticatedClientAction: 'RedirectToLoginPage'
-    }
-    identityProviders: {
-      azureActiveDirectory: {
-        enabled: true
-        registration: {
-          openIdIssuer: '${loginEndpointUri}/${tenantId}/v2.0'
-          clientId: clientId
-          clientSecretSettingName: 'AzureAdClientSecret'
+  resource authSettings 'config' = {
+    name: 'authsettingsV2'
+    properties: {
+      globalValidation: {
+        requireAuthentication: true
+        redirectToProvider: 'azureActiveDirectory'
+        unauthenticatedClientAction: 'RedirectToLoginPage'
+      }
+      identityProviders: {
+        azureActiveDirectory: {
+          enabled: true
+          registration: {
+            openIdIssuer: '${environment().authentication.loginEndpoint}/${tenantId}/v2.0'
+            clientId: clientId
+            clientSecretSettingName: 'AzureAdClientSecret'
+          }
         }
       }
     }
   }
-}
 
-resource webAppSettings 'Microsoft.Web/sites/config@2022-03-01' = {
-  parent: webApp
-  name: 'appsettings'
-  properties: {
-    AzureAdClientSecret: clientSecret
+  resource appsettings 'config' = {
+    name: 'appsettings'
+    properties: {
+      AzureAdClientSecret: clientSecret
+    }
   }
 
-}
-
-resource WebAppPublishSettings 'Microsoft.Web/sites/basicPublishingCredentialsPolicies@2022-09-01' = {
-  parent: webApp
-  name: 'scm'
-  properties: {
-    allow: true
+  resource webAppPublishSettings 'basicPublishingCredentialsPolicies' = {
+    name: 'scm'
+    properties: {
+      allow: true
+    }
   }
 }
 
