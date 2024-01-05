@@ -349,8 +349,8 @@ New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "WebSite 
    | Secret | Value |
    | :----- | :---- |
    | **CLIENT_ID**           | Application ID of the identity that shall run Azure Governance Visualizer |
-   | **AAD_CLIENT_ID**       | Application ID of the identity that will be used to configure Microsoft Entra ID authentication to the Azure Web App |
-   | **AAD_CLIENT_SECRET**   | Secret of the identity that will be used to configure Azure AD authentication to the Azure Web App |
+   | **ENTRA_CLIENT_ID**       | Application ID of the identity that will be used to configure Microsoft Entra ID authentication to the Azure Web App |
+   | **ENTRA_CLIENT_SECRET**   | Secret of the identity that will be used to configure Azure AD authentication to the Azure Web App |
    | **SUBSCRIPTION_ID**     | Azure subscription ID |
    | **TENANT_ID**           | Microsoft Entra tenant ID |
    | **MANAGEMENT_GROUP_ID** | Azure management group ID |
@@ -372,13 +372,13 @@ $tenantId = "<Microsoft Entra tenant ID>"
 $managementGroupId = $managementGroupId
 $resourceGroupName = $resourceGroupName
 $clientId = $AzGovVizAppId
-$aadClientId = $webAppSPAppId
-$aadClientSecret = $webAppSPAppSecret
+$webAppClientId = $webAppSPAppId
+$webAppClientSecret = $webAppSPAppSecret
 
 # Create GitHub repository secrets and variables
 gh secret set 'CLIENT_ID' -b $clientId
-gh secret set 'AAD_CLIENT_ID' -b $aadClientId
-gh secret set 'AAD_CLIENT_SECRET' -b $aadClientSecret
+gh secret set 'ENTRA_CLIENT_ID' -b $webAppClientId
+gh secret set 'ENTRA_CLIENT_SECRET' -b $webAppClientSecret
 gh secret set 'SUBSCRIPTION_ID' -b $subscriptionId
 gh secret set 'TENANT_ID' -b $tenantId
 gh secret set 'MANAGEMENT_GROUP_ID' -b $managementGroupId

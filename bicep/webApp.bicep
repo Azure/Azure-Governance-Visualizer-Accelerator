@@ -20,17 +20,17 @@ param kind string = 'Windows'
 @description('The public network access of the web app')
 param publicNetworkAccess string
 
-@description('The tenant id of the subscription (used for AAD authentication)')
+@description('The Microsoft Entra tenant ID of the Azure subscription (used for user authentication)')
 param tenantId string = subscription().tenantId
 
-@description('The client id of the AAD application (used for AAD authentication)')
+@description('The client ID of the Microsoft Entra application (used for user authentication)')
 param clientId string
 
-@description('The client secret of the AAD application (used for AAD authentication)')
+@description('The client secret of the Microsoft Entra application (used for user authentication)')
 @secure()
 param clientSecret string
 
-@description('The AzGovViz management group id')
+@description('The AzGovViz management group ID')
 param managementGroupId string
 
 var loginEndpointUri = environment().authentication.loginEndpoint
