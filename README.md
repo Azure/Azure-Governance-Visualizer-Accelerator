@@ -6,13 +6,13 @@
 
 ## Deployment guide
 
-Follow these steps to deploy the Azure Governance Visualizer accelerator into your own Azure and Microsoft Entra ID tenant. Most steps have both **portal based** and **PowerShell based** instructions. Use whichever you feel is appropriate for your situation, they both produce the same results.
+Follow these steps to deploy the Azure Governance Visualizer accelerator into your own Azure and Microsoft Entra ID tenant. Most steps have both **portal based** (:computer_mouse:) and **PowerShell based** (:keyboard:) instructions. Use whichever you feel is appropriate for your situation, they both produce the same results.
 
 ### 1. Create a service principal (Microsoft Entra ID app registration) to run Azure Governance Visualizer
 
 > NOTE: To grant API permissions and grant admin consent for the directory, you must have 'Privileged Role Administrator' or 'Global Administrator' role assigned [Assign Microsoft Entra roles to users](https://learn.microsoft.com/entra/identity/role-based-access-control/manage-roles-portal)
 
-**:point_up_2: Use the Microsoft Entra admin center to create the service principal:**
+**:computer_mouse: Use the Microsoft Entra admin center to create the service principal:**
 
 1. Navigate to the [Microsoft Entra admin center](https://entra.microsoft.com/)
 1. Click on '**App registrations**'
@@ -32,7 +32,7 @@ Follow these steps to deploy the Azure Governance Visualizer accelerator into yo
    1. Click on 'Add a permissions'
 1. Back in the main '**API permissions**' menu you will find permissions with status 'Not granted for...'. Click on '**Grant admin consent for _TenantName_**' and confirm by click on '**Yes**'. Now you will find the permissions with status '**Granted for _TenantName_**'
 
-**:computer: Use PowerShell to create the service principal:**
+**:keyboard: Use PowerShell to create the service principal:**
 
 1. Install [AzAPICall](https://github.com/JulianHayward/AzAPICall) and connect to Azure
 
@@ -139,7 +139,7 @@ Result: A service principal is created with the necessary API permissions and ad
 
 ### 2. Create copy of the Azure Governance Visualizer accerlator in your own GitHub repository
 
-**:point_up_2: Use the GitHub website:**
+**:computer_mouse: Use the GitHub website:**
 
 1. Navigate to the accelerator [GitHub repository](https://github.com/azure/Azure-Governance-Visualizer-Accelerator).
 1. Create a [new repository from the accelerator template](https://docs.github.com/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template#creating-a-repository-from-a-template).
@@ -149,7 +149,7 @@ Result: A service principal is created with the necessary API permissions and ad
 
    ![Screenshot showing creating a private repository](./media/private_repo.png)
 
-**:computer: Use PowerShell and the GitHub CLI:**
+**:keyboard: Use PowerShell and the GitHub CLI:**
 
 1. Install the [GitHub CLI](https://github.com/cli/cli#installation)
 1. Login to your GitHub account.
@@ -175,7 +175,7 @@ Result: A service principal is created with the necessary API permissions and ad
 
 ### 3. Configure federated credentials for the service principal created in the first step
 
-**:point_up_2: Use the Microsoft Entra admin center:**
+**:computer_mouse: Use the Microsoft Entra admin center:**
 
 1. Navigate to the [Microsoft Entra admin center](https://entra.microsoft.com/)
 1. Click on '**App registrations**'
@@ -191,7 +191,7 @@ Result: A service principal is created with the necessary API permissions and ad
 1. Fill the field 'Name' with a name (e.g. AzureGovernanceVisualizer_GitHub_Actions)
 1. Click 'Add'
 
-**:computer: Use PowerShell and the GitHub CLI:**
+**:keyboard: Use PowerShell and the GitHub CLI:**
 
 ```powershell
 $gitHubRef= ":ref:refs/heads/main"
@@ -213,11 +213,11 @@ AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].M
 
 > NOTE: To assign roles, you must have '**Microsoft.Authorization/roleAssignments/write**' permissions on the target management group scope (such as the built-in RBAC role '**User Access Administrator**' or '**Owner**')
 
-**:point_up_2: From the Azure portal:**
+**:computer_mouse: From the Azure portal:**
 
 Create a '**Reader**' [RBAC role assignment](https://learn.microsoft.com/azure/role-based-access-control/role-assignments-portal) on the target management group scope for the service principal that will run Azure Governance Visualizer.
 
-**:computer: Use PowerShell:**
+**:keyboard: Use PowerShell:**
 
 ```powershell
 $managementGroupId = "<managementGroupId>"
@@ -229,7 +229,7 @@ New-AzRoleAssignment `
 
 ### 5. Create a Microsoft Entra application for user authentication to the Azure Web App that will host AzGovViz
 
-**:point_up_2: From the Microsoft Entra admin center:**
+**:computer_mouse: From the Microsoft Entra admin center:**
 
 1. Create an [app registration](https://learn.microsoft.com/entra/identity-platform/quickstart-register-app#register-an-application) in Microsoft Entra ID for your Azure App Web App.
 
@@ -248,7 +248,7 @@ New-AzRoleAssignment `
 
    ![Screenshot showing adding a scope to the API](./media/app_registration_expose_api_addScope.png)
 
-**:computer: Use PowerShell:**
+**:keyboard: Use PowerShell:**
 
 ```powershell
 # 2-60 Alphanumeric, hyphens and Unicode characters. Can't start or end with hyphen. A web site must have a globally unique name.
@@ -320,14 +320,14 @@ $webAppSPAppSecret = (AzAPICall -method POST -body $body -uri "$($azAPICallConf[
 >
 > Make sure that the resource provider _Microsoft.Web_ is registered on the subscription where the Azure Web App hosting AzGovViz will be deployed.
 
-**:point_up_2: From the Azure portal:**
+**:computer_mouse: From the Azure portal:**
 
 1. Create a [new resource group](https://learn.microsoft.com/azure/azure-resource-manager/management/manage-resource-groups-portal#create-resource-groups) in Azure.
 1. [Assign the following roles](https://learn.microsoft.com/azure/role-based-access-control/role-assignments-portal) to the AzGovViz service principal the on the newly created resource group.
     - [Website Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#website-contributor)
     - [Web Plan Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#web-plan-contributor)
 
-**:computer: Use PowerShell:**
+**:keyboard: Use PowerShell:**
 
 ```powershell
 $subscriptionId = "<Subscription Id>"
@@ -342,7 +342,7 @@ New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "WebSite 
 
 ### 7. Create the GitHub secrets, variables, and permissions
 
-**:point_up_2: From the GitHub website:**
+**:computer_mouse: From the GitHub website:**
 
 1. Create the following [GitHub secrets](https://docs.github.com/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) on the repository.
 
@@ -364,7 +364,7 @@ New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "WebSite 
 
 1. Enable GitHub actions to [create and approve pull requests](https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#preventing-github-actions-from-creating-or-approving-pull-requests) on the repository.
 
-**:computer: Use PowerShell and the GitHub CLI:**
+**:keyboard: Use PowerShell and the GitHub CLI:**
 
 ```powershell
 $subscriptionId = "<Azure subscription ID>"
