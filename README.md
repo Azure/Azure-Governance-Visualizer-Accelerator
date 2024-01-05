@@ -1,515 +1,460 @@
-# Azure Governance Visualizer (AzGovViz) Accelerator 
+# Azure Governance Visualizer (AzGovViz) accelerator
 
-## Description
+[Azure Governance Visualizer](https://github.com/Azure/Azure-Governance-Visualizer) is a PowerShell based script that iterates your Azure tenant's management group hierarchy down to the subscription level. It captures most relevant Azure governance capabilities such as Azure Policy, role-based access control (RBAC), Blueprints, and a lot more. From the collected data Azure Governance Visualizer provides visibility on your HierarchyMap, creates a TenantSummary, creates DefinitionInsights and builds granular ScopeInsights on management groups and subscriptions.
 
-[Azure Governance Visualizer](https://github.com/JulianHayward/Azure-MG-Sub-Governance-Reporting) is a PowerShell based script that iterates your Azure Tenant´s Management Group hierarchy down to Subscription level. It captures most relevant Azure governance capabilities such as Azure Policy, RBAC and Blueprints and a lot more. From the collected data Azure Governance Visualizer provides visibility on your HierarchyMap, creates a TenantSummary, creates DefinitionInsights and builds granular ScopeInsights on Management Groups and Subscriptions. This accelerator speeds up the adoption of the script into your environment.
+**This accelerator speeds up the adoption of Azure Governance Visualizer into your environment.**
 
-## Table of Contents
+## Deployment guide
 
-- [Azure Governance Visualizer (AzGovViz) Accelerator](#azure-governance-visualizer-azgovviz-accelerator)
-  - [Description](#description)
-  - [Table of Contents](#table-of-contents)
-  - [Prerequisites](#prerequisites)
-    - [1. Create a Service Principal (Azure AD app registration) to run AzGovViz](#1-create-a-service-principal-azure-ad-app-registration-to-run-azgovviz)
-      - [Azure Portal](#azure-portal)
-      - [PowerShell](#powershell)
-    - [2. Create the GitHub repository](#2-create-the-github-repository)
-      - [GitHub](#github)
-      - [PowerShell](#powershell-1)
-    - [3. Configure federated credentials for the Service Principal](#3-configure-federated-credentials-for-the-service-principal)
-      - [Azure Portal](#azure-portal-1)
-      - [PowerShell](#powershell-2)
-    - [4. Grant permissions in Azure for the AzGovViz service principal](#4-grant-permissions-in-azure-for-the-azgovviz-service-principal)
-      - [Azure Portal](#azure-portal-2)
-      - [PowerShell](#powershell-3)
-    - [5. Create an Azure AD application for AAD authentication for the Azure Web App](#5-create-an-azure-ad-application-for-aad-authentication-for-the-azure-web-app)
-      - [Azure Portal](#azure-portal-3)
-      - [PowerShell](#powershell-4)
-    - [6. Create a Resource Group and assign the right RBAC Roles](#6-create-a-resource-group-and-assign-the-right-rbac-roles)
-      - [Azure Portal](#azure-portal-4)
-      - [PowerShell](#powershell-5)
-    - [7. Create the GitHub secrets, variables and permissions](#7-create-the-github-secrets-variables-and-permissions)
-      - [GitHub](#github-1)
-      - [PowerShell](#powershell-6)
-  - [How to deploy](#how-to-deploy)
-  - [Configuration](#configuration)
-    - [Azure Web App configuration](#azure-web-app-configuration)
-    - [Keeping Azure Governance Visualizer code up-to-date](#keeping-azure-governance-visualizer-code-up-to-date)
-    - [keeping the Azure Governance Visualizer Accelerator code up-to-date](#keeping-the-azure-governance-visualizer-accelerator-code-up-to-date)
-  - [Sources to documentation](#sources-to-documentation)
+Follow these steps to deploy the Azure Governance Visualizer accelerator into your own Azure and Microsoft Entra ID tenant. Most steps have both **portal based** and **PowerShell based** instructions. Use whichever you feel is appropriate for your situation, they both produce the same results.
 
-## Prerequisites
+### 1. Create a service principal (Microsoft Entra ID app registration) to run Azure Governance Visualizer
 
-### 1. Create a Service Principal (Azure AD app registration) to run AzGovViz
+> NOTE: To grant API permissions and grant admin consent for the directory, you must have 'Privileged Role Administrator' or 'Global Administrator' role assigned [Assign Microsoft Entra roles to users](https://learn.microsoft.com/entra/identity/role-based-access-control/manage-roles-portal)
 
-#### Azure Portal
+**:point_up_2: Use the Microsoft Entra admin center to create the service principal:**
 
->NOTE
->To grant API permissions and grant admin consent for the directory, you must have 'Privileged Role Administrator' or 'Global Administrator' role assigned [Assign Azure AD roles to users](https://docs.microsoft.com/azure/active-directory/roles/manage-roles-portal)
+1. Navigate to the [Microsoft Entra admin center](https://entra.microsoft.com/)
+1. Click on '**App registrations**'
+1. Click on '**New registration**'
+1. Name your application (e.g. _AzureGovernanceVisualizer_SP_)
+1. Click '**Register**'
+1. Your App registration has been created. In the '**Overview**' copy the '**Application (client) ID**' as we will need it later to setup the secrets in GitHub.
+1. Under '**Manage**' click on '**API permissions**'
+   1. Click on '**Add a permissions**'
+   1. Click on '**Microsoft Graph**'
+   1. Click on '**Application permissions**'
+   1. Select the following set of permissions and click '**Add permissions**'
+      - **Application / Application.Read.All**
+      - **Group / Group.Read.All**
+      - **User / User.Read.All**
+      - **PrivilegedAccess / PrivilegedAccess.Read.AzureResources**
+   1. Click on 'Add a permissions'
+1. Back in the main '**API permissions**' menu you will find permissions with status 'Not granted for...'. Click on '**Grant admin consent for _TenantName_**' and confirm by click on '**Yes**'. Now you will find the permissions with status '**Granted for _TenantName_**'
 
-- Navigate to 'Azure Active Directory'
-- Click on '__App registrations__'
-- Click on '__New registration__'
-- Name your application (e.g. _AzureGovernanceVisualizer_SP_)
-- Click '__Register__'
-- Your App registration has been created, in the '__Overview__' copy the '__Application (client) ID__' as we will need it later to setup the secrets in GitHub
-- Under '__Manage__' click on '__API permissions__'
-  - Click on '__Add a permissions__'
-    - Click on '__Microsoft Graph__'
-    - Click on '__Application permissions__'
-    - Select the following set of permissions and click '__Add permissions__'
-        - __Application / Application.Read.All__
-        - __Group / Group.Read.All__
-        - __User / User.Read.All__
-        - __PrivilegedAccess / PrivilegedAccess.Read.AzureResources__
-    - Click on 'Add a permissions'
-    - Back in the main '__API permissions__' menu you will find permissions with status 'Not granted for...'. Click on '__Grant admin consent for _TenantName___' and confirm by click on '__Yes__'
-    - Now you will find the permissions with status '__Granted for _TenantName___'
+**:computer: Use PowerShell to create the service principal:**
 
-    ![Screenshot showing Azure AD application permissions](https://github.com/JulianHayward/Azure-MG-Sub-Governance-Reporting/raw/master/img/aadpermissionsportal_4.jpg)
+1. Install [AzAPICall](https://github.com/JulianHayward/AzAPICall) and connect to Azure
 
-#### PowerShell
+   ```powershell
+   $module = Get-Module -Name "AzAPICall" -ListAvailable
+   if ($module) {
+     Update-Module -Name "AzAPICall" -Force
+   } else {
+     Install-Module -Name AzAPICall
+   }
+   Connect-AzAccount
+   ```
 
->NOTE
->To grant API permissions and grant admin consent for the directory, you must have 'Privileged Role Administrator' or 'Global Administrator' role assigned [Assign Azure AD roles to users](https://docs.microsoft.com/azure/active-directory/roles/manage-roles-portal)
+1. Initialize AzAPICall
 
-- Install [AzAPICall](https://github.com/JulianHayward/AzAPICall) and connect to Azure
+   ```powershell
+   $parameters4AzAPICallModule = @{
+     #SubscriptionId4AzContext = $null #specify Subscription Id
+     #DebugAzAPICall = $true
+     #WriteMethod = 'Output' #Debug, Error, Host, Information, Output, Progress, Verbose, Warning (default: host)
+     #DebugWriteMethod = 'Warning' #Debug, Error, Host, Information, Output, Progress, Verbose, Warning (default: host)
+     #SkipAzContextSubscriptionValidation = $true #Use if the account doesn´t have any permissions on Management Groups,  Subscriptions, Resource Groups or Resources
+   }
+ 
+   $azAPICallConf = initAzAPICall @parameters4AzAPICallModule
+   ```
 
-    ```POWERSHELL
-    $module = Get-Module -Name "AzAPICall" -ListAvailable
-    if ($module) {
-      Update-Module -Name "AzAPICall" -Force
-    } else {
-      Install-Module -Name AzAPICall
-    }
-    Connect-AzAccount
-    ```
+1. Define variables
 
-- Initialize AzAPICall
+   ```powershell
+   $MicrosoftGraphAppId = "00000003-0000-0000-c000-000000000000"
+   $AzGovVizAppName = "<App registration name that will be used to run AzGovViz>"
+   ```
 
-    ```POWERSHELL
-    $parameters4AzAPICallModule = @{
-       #SubscriptionId4AzContext = $null #specify Subscription Id
-       #DebugAzAPICall = $true
-       #WriteMethod = 'Output' #Debug, Error, Host, Information, Output, Progress, Verbose, Warning (default: host)
-       #DebugWriteMethod = 'Warning' #Debug, Error, Host, Information, Output, Progress, Verbose, Warning (default: host)
-       #SkipAzContextSubscriptionValidation = $true #Use if the account doesn´t have any permissions on Management Groups, Subscriptions, Resource Groups or Resources
-    }
+1. Get Microsoft Graph permissions role IDs and the create app registration
 
-    $azAPICallConf = initAzAPICall @parameters4AzAPICallModule
-    ```
+   ```powershell
+   $apiEndPoint = $azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph
+   $apiEndPointVersion = '/v1.0'
+   $api = '/servicePrincipals'
+   $optionalQueryParameters = "?`$filter=(displayName eq 'Microsoft Graph')&$count=true&"
+ 
+   $uri = $apiEndPoint + $apiEndPointVersion + $api + $optionalQueryParameters
+ 
+   $azAPICallPayload = @{
+       uri= $uri
+       method= 'GET'
+       currentTask= "'$($azAPICallConf['azAPIEndpoints'].($apiEndPoint.split('/')[2])) API: Get - Groups'"
+       consistencyLevel= 'eventual'
+       noPaging= $true
+       AzAPICallConfiguration = $azAPICallConf
+   }
+   
+   $graphApp = AzAPICall @azAPICallPayload
+   $appRole = $graphApp.appRoles | Where-Object { $_.value -eq 'Application.Read.All' } | Select-Object -ExpandProperty id
+   $userRole = $graphApp.appRoles | Where-Object { $_.value -eq 'User.Read.All' } | Select-Object -ExpandProperty id
+   $groupRole = $graphApp.appRoles | Where-Object { $_.value -eq 'Group.Read.All' } | Select-Object -ExpandProperty id
+   $pimRole = $graphApp.appRoles | Where-Object { $_.value -eq 'PrivilegedAccess.Read.AzureResources' } | Select-Object  -ExpandProperty id
+   
+   $body = @"
+   {
+     "DisplayName":"$AzGovVizAppName",
+     "requiredResourceAccess" : [
+       {
+         "resourceAppId" : "$MicrosoftGraphAppId",
+         "resourceAccess": [
+           {
+             "id": "$appRole",
+             "type": "Role"
+           },
+           {
+             "id": "$userRole",
+             "type": "Role"
+           },
+           {
+             "id": "$groupRole",
+             "type": "Role"
+           },
+           {
+             "id": "$pimRole",
+             "type": "Role"
+           }
+         ]
+       }
+     ]
+   }"@
+ 
+   $AzGovVizAppObjectId = (AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/ v1.0/applications" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual').id
+ 
+   do {
+     Write-Host "Waiting for the AzGovViz service principal to get created..."
+     Start-Sleep -seconds 20
+     $AzGovVizAppId = (AzAPICall -method GET -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/       applications/$AzGovVizAppObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel  'eventual' -skipOnErrorCode 404).appId
+   } until ($null -ne $AzGovVizAppId)
+   
+   Write-host "AzGovViz service principal created successfully."
+   ```
 
-- Define variables
+1. Grant admin consent using the [Microsoft Entra admin center](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade/quickStartType~/null/sourceType/Microsoft_AAD_IAM).
 
-    ```POWERSHELL
-    $MicrosoftGraphAppId = "00000003-0000-0000-c000-000000000000"
-    $AzGovVizAppName = "<App registration name that will be used to run AzGovViz>"
-    ```
+Result: A service principal is created with the necessary API permissions and admin consent granted. The following screenshot shows the API permissions and granted status.
 
-- Get Microsoft Graph permissions role Ids and create app registration
+![A screenshot showing API permissions assigned to the application registration you created.](https://github.com/Azure/Azure-Governance-Visualizer/raw/master/img/aadpermissionsportal_4.jpg)
 
-```POWERSHELL
-$apiEndPoint = $azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph
-$apiEndPointVersion = '/v1.0'
-$api = '/servicePrincipals'
-$optionalQueryParameters = "?`$filter=(displayName eq 'Microsoft Graph')&$count=true&"
+### 2. Create copy of the Azure Governance Visualizer accerlator in your own GitHub repository
 
-$uri = $apiEndPoint + $apiEndPointVersion + $api + $optionalQueryParameters
+**:point_up_2: Use the GitHub website:**
 
-$azAPICallPayload = @{
-    uri= $uri
-    method= 'GET'
-    currentTask= "'$($azAPICallConf['azAPIEndpoints'].($apiEndPoint.split('/')[2])) API: Get - Groups'"
-    consistencyLevel= 'eventual'
-    noPaging= $true
-    AzAPICallConfiguration = $azAPICallConf
-    }
+1. Navigate to the accelerator [GitHub repository](https://github.com/azure/Azure-Governance-Visualizer-Accelerator).
+1. Create a [new repository from the accelerator template](https://docs.github.com/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template#creating-a-repository-from-a-template).
+   - Ensure the new repository is set to _Private_.
 
-    $graphApp = AzAPICall @azAPICallPayload
-    $appRole = $graphApp.appRoles | Where-Object { $_.value -eq 'Application.Read.All' } | Select-Object -ExpandProperty id
-    $userRole = $graphApp.appRoles | Where-Object { $_.value -eq 'User.Read.All' } | Select-Object -ExpandProperty id
-    $groupRole = $graphApp.appRoles | Where-Object { $_.value -eq 'Group.Read.All' } | Select-Object -ExpandProperty id
-    $pimRole = $graphApp.appRoles | Where-Object { $_.value -eq 'PrivilegedAccess.Read.AzureResources' } | Select-Object -ExpandProperty id
+   ![Screenshot showing creating a new repository from a template on GitHub.com](./media/new_repo.png)
 
+   ![Screenshot showing creating a private repository](./media/private_repo.png)
+
+**:computer: Use PowerShell and the GitHub CLI:**
+
+1. Install the [GitHub CLI](https://github.com/cli/cli#installation)
+1. Login to your GitHub account.
+
+   ```powershell
+   gh auth login
+   ```
+
+1. Create a private repository from the accelerator template
+
+   ```powershell
+   $directoryToCloneAccelerator = "<Local directory to clone the Accelerator's repository>"
+   $GitHubOrg = "<GitHub organization to use>"
+   $GitHubRepository = "Azure-Governance-Visualizer"
+ 
+   ### Create a new repository from template
+   gh repo create $GitHubRepository --template Azure/Azure-Governance-Visualizer-Accelerator --private
+   New-Item -ItemType Directory -Path $directoryToCloneAccelerator -Force
+   cd $directoryToCloneAccelerator
+   gh repo clone "$GitHubOrg/$GitHubRepository"
+   Set-Location $GitHubRepository
+   ```
+
+### 3. Configure federated credentials for the service principal created in the first step
+
+**:point_up_2: Use the Microsoft Entra admin center:**
+
+1. Navigate to the [Microsoft Entra admin center](https://entra.microsoft.com/)
+1. Click on '**App registrations**'
+1. Search for the Application that you created earlier and click on it
+1. Under '**Manage**' click on '**Certificates & Secrets**'
+1. Click on '**Federated credentials**'
+1. Click 'Add credential'
+1. Select Federation credential scenario 'GitHub Actions deploying Azure Resources'
+1. Fill the field 'Organization' with your GitHub organization name
+1. Fill the field 'Repository' with your GitHub repository name
+1. For the entity type select 'Branch'
+1. Fill the field 'GitHub branch name' with your branch name
+1. Fill the field 'Name' with a name (e.g. AzureGovernanceVisualizer_GitHub_Actions)
+1. Click 'Add'
+
+**:computer: Use PowerShell and the GitHub CLI:**
+
+```powershell
+$gitHubRef= ":ref:refs/heads/main"
+$subject = "repo:$gitHubOrg/$GitHubRepository$gitHubRef"
 $body = @"
-    {
-    "DisplayName":"$AzGovVizAppName",
-    "requiredResourceAccess" : [
-    {
-    "resourceAppId" : "$MicrosoftGraphAppId",
-    "resourceAccess": [
-    {
-    "id": "$appRole",
-    "type": "Role"
-    },
-    {
-    "id": "$userRole",
-    "type": "Role"
-    },
-    {
-    "id": "$groupRole",
-    "type": "Role"
-    },
-    {
-    "id": "$pimRole",
-    "type": "Role"
-    }
-    ]
-    }
-    ]
-    }
-"@
-
-$AzGovVizAppObjectId = (AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual').id
-
-do {
-    Write-Host "Waiting for the AzGovViz service principal to get created..."
-    Start-Sleep -seconds 20
-    $AzGovVizAppId = (AzAPICall -method GET -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$AzGovVizAppObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual' -skipOnErrorCode 404).appId
-} until ($null -ne $AzGovVizAppId)
-
-Write-host "AzGovViz service principal created successfully."
-
-```
-
-- Grant admin consent using the Azure AD portal
-
-  ![Screenshot showing Azure AD application permissions](https://github.com/JulianHayward/Azure-MG-Sub-Governance-Reporting/raw/master/img/aadpermissionsportal_4.jpg)
-
-### 2. Create the GitHub repository
-
-#### GitHub
-
-- Navigate to the accelerator [GitHub repository](https://github.com/azure/Azure-Governance-Visualizer-Accelerator)
-- Create a [new repository from the accelerator template](https://docs.github.com/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template#creating-a-repository-from-a-template)
-
-    ![Screenshot showing creating a new repository from a template on GitHub.com](./media/new_repo.png)
-
-    ![Screenshot showing creating a private repository](./media/private_repo.png)
-
->NOTE
-> The new repository's visibility needs to be set as Private.
-
-#### PowerShell
-
-- [Install GitHub CLI](https://github.com/cli/cli#installation)
-
-- Login to your GitHub account
-
-    ```POWERSHELL
-    gh auth login
-    ```
-
-- Create a private repository from the Accelerator template
-
-    ```POWERSHELL
-    ### Define variables
-    $directoryToCloneAccelerator = "<Local directory to clone the Accelerator's repository>"
-    $GitHubOrg = "<GitHub organization to use>"
-    $GitHubRepository = "Azure-Governance-Visualizer"
-
-    ### Create a new repository from template
-    gh repo create $GitHubRepository --template Azure/Azure-Governance-Visualizer-Accelerator --private
-    New-Item -ItemType Directory -Path $directoryToCloneAccelerator -Force
-    cd $directoryToCloneAccelerator
-    gh repo clone "$GitHubOrg/$GitHubRepository"
-    Set-Location $GitHubRepository
-
-    ```
-
-### 3. Configure federated credentials for the Service Principal
-
-#### Azure Portal
-
-Navigate to 'Azure Active Directory'
-
-- Click on '__App registrations__'
-- Search for the Application that we created earlier and click on it
-- Under '__Manage__' click on '__Certificates & Secrets__'
-- Click on '__Federated credentials__'
-- Click 'Add credential'
-- Select Federation credential scenario 'GitHub Actions deploying Azure Resources'
-- Fill the field 'Organization' with your GitHub Organization name
-- Fill the field 'Repository' with your GitHub repository name
-- For the entity type select 'Branch'
-- Fill the field 'GitHub branch name' with your branch name
-- Fill the field 'Name' with a name (e.g. AzureGovernanceVisualizer_GitHub_Actions)
-- Click 'Add'
-
-#### PowerShell
-
-  ```POWERSHELL
-  $gitHubRef= ":ref:refs/heads/main"
-  $subject = "repo:$gitHubOrg/$GitHubRepository$gitHubRef"
-  $body = @"
-  {
-    "audiences": [
+{
+  "audiences": [
     "api://AzureADTokenExchange"
-    ],
-    "subject":"$subject",
-    "issuer":"https://token.actions.githubusercontent.com",
-    "name":"AzGovVizCreds"
-    }
-"@
+  ],
+  "subject":"$subject",
+  "issuer":"https://token.actions.githubusercontent.com",
+  "name":"AzGovVizCreds"
+}"@
 
 AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$AzGovVizAppObjectId/federatedIdentityCredentials" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual'
-  ```
+```
 
-### 4. Grant permissions in Azure for the AzGovViz service principal
+### 4. Grant permissions in Azure for the AzGovViz service principal created in the first step
 
-#### Azure Portal
+> NOTE: To assign roles, you must have '**Microsoft.Authorization/roleAssignments/write**' permissions on the target management group scope (such as the built-in RBAC role '**User Access Administrator**' or '**Owner**')
 
->NOTE
->To assign roles, you must have '__Microsoft.Authorization/roleAssignments/write__' permissions on the target Management Group scope (such as the built-in RBAC Role '__User Access Administrator__' or '__Owner__')
+**:point_up_2: From the Azure portal:**
 
-- Create a '__Reader__' [RBAC Role assignment](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal) on the target Management Group scope for the identity that shall run Azure Governance Visualizer
+Create a '**Reader**' [RBAC role assignment](https://learn.microsoft.com/azure/role-based-access-control/role-assignments-portal) on the target management group scope for the service principal that will run Azure Governance Visualizer.
 
-#### PowerShell
+**:computer: Use PowerShell:**
 
-  ```POWERSHELL
-    $role = "Reader"
-    $managementGroupId = "<managementGroupId>"
-    New-AzRoleAssignment `
-    -ApplicationId $AzGovVizAppId `
-    -RoleDefinitionName $role `
-    -Scope /providers/Microsoft.Management/managementGroups/$managementGroupId
-  ```
+```powershell
+$managementGroupId = "<managementGroupId>"
+New-AzRoleAssignment `
+-ApplicationId $AzGovVizAppId `
+-RoleDefinitionName "Reader" `
+-Scope /providers/Microsoft.Management/managementGroups/$managementGroupId
+```
 
-### 5. Create an Azure AD application for AAD authentication for the Azure Web App
+### 5. Create a Microsoft Entra application for user authentication to the Azure Web App that will host AzGovViz
 
-#### Azure Portal
+**:point_up_2: From the Microsoft Entra admin center:**
 
-- Create an [app registration](https://learn.microsoft.com/azure/app-service/configure-authentication-provider-aad#-step-1-create-an-app-registration-in-azure-ad-for-your-app-service-app) in Azure AD for your Azure App Web app
+1. Create an [app registration](https://learn.microsoft.com/entra/identity-platform/quickstart-register-app#register-an-application) in Microsoft Entra ID for your Azure App Web App.
 
-- In the Redirect URIs section, select Web for platform and type the URI in the following format: "https://<webapp_name>.azurewebsites.net/.auth/login/aad/callback"
-- Click on _Authentication_ and under _Implicit grant and hybrid flows_, enable ID tokens to allow OpenID Connect user sign-ins from App Service. Select Save.
+   In the Redirect URIs section, select Web for platform and type the URI in the following format: "https://<webapp_name>.azurewebsites.net/.auth/login/aad/callback"
+1. Click on _Authentication_ and under _Implicit grant and hybrid flows_, enable ID tokens to allow OpenID Connect user sign-ins from App Service. Select Save.
 
-    ![Screenshot showing enabling Open ID in app registration](./media/app_registration_openID.png)
+   ![Screenshot showing enabling Open ID in app registration](./media/app_registration_openID.png)
 
-- From the left navigation, select Expose an API > Add > Save.
+1. From the left navigation, select Expose an API > Add > Save.
 
-    ![Screenshot showing exposing an API](./media/app_registration_expose_api.png)
+   ![Screenshot showing exposing an API](./media/app_registration_expose_api.png)
 
-    ![Screenshot showing exposing an API](./media/app_registration_expose_api_add.png)
+   ![Screenshot showing exposing an API](./media/app_registration_expose_api_add.png)
 
-- Click on _Add a scope_ and provide the values as the screenshot.
+1. Click on _Add a scope_ and provide the values as the screenshot.
 
-    ![Screenshot showing adding a scope to the API](./media/app_registration_expose_api_addScope.png)
+   ![Screenshot showing adding a scope to the API](./media/app_registration_expose_api_addScope.png)
 
-#### PowerShell
+**:computer: Use PowerShell:**
 
-  ```POWERSHELL
-    # 2-60 Alphanumeric, hyphens and Unicode characters.Can't start or end with hyphen. A web site must have a globally unique name
-    $webAppName = "<Azure Web App name to publish AzGovViz>"
-    $WebApplicationAppName = "<App registration name that will be used to add Azure AD authentication to the web app>"
+```powershell
+# 2-60 Alphanumeric, hyphens and Unicode characters. Can't start or end with hyphen. A web site must have a globally unique name.
+$webAppName = "<Azure Web App name to publish AzGovViz>"
+$WebApplicationAppName = "<App registration name that will be used to add Microsoft Entra ID-based authentication to the web app>"
 
-    $body = @"
-    {
-    "DisplayName":"$WebApplicationAppName",
-    "web":
-    {
+$body = @"
+{
+  "DisplayName":"$WebApplicationAppName",
+  "web": {
     "redirectUris": [
-    "https://$webAppName.azurewebsites.net/.auth/login/aad/callback"
+      "https://$webAppName.azurewebsites.net/.auth/login/aad/callback"
     ],
-    "implicitGrantSettings":
-    {
-    "enableIdTokenIssuance": true
+    "implicitGrantSettings": {
+      "enableIdTokenIssuance": true
     }
-    }
-    }
-"@
+  }
+}"@
 
 $webAppSP = AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual'
 $webAppSPAppId = $webAppSP.appId
 $webAppSPObjectId = $webAppSP.Id
 
 do {
-    Write-Host "Waiting for the Azure WebApp app registration to get created..."
-    Start-Sleep -seconds 30
-    $webApp = AzAPICall -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$webAppSPObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual'
-
+  Write-Host "Waiting for the Azure WebApp app registration to get created..."
+  Start-Sleep -seconds 30
+  $webApp = AzAPICall -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$webAppSPObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual'
 } until ( $null -ne $webApp)
 
-Write-host "Azure WebApp app registration created successfully."
+Write-host "Azure Web App app registration created successfully."
 
-    #### Add an API scope for the Web App
-    $body = @"
-    {
-        "identifierUris" : [
-        "api://$webAppSPAppId"
-        ],
-        "api":
-        {
-            "oauth2PermissionScopes": [
-                {
-                    "value": "user_impersonation",
-                    "adminConsentDescription": "AzGovViz Web App Azure AD authentication",
-                    "adminConsentDisplayName": "AzGovViz Web App Azure AD authentication",
-                    "type": "User",
-                    "id": "$webAppSPAppId"
-                }
-            ]
-        }
-    }
-"@
-
-
+# Add an API scope for the Web App
+$body = @"
+{
+  "identifierUris" : [
+    "api://$webAppSPAppId"
+  ],
+  "api": {
+    "oauth2PermissionScopes": [
+      {
+        "value": "user_impersonation",
+        "adminConsentDescription": "AzGovViz Web App Microsoft Entra ID authentication",
+        "adminConsentDisplayName": "AzGovViz Web App Microsoft Entra ID authentication",
+        "type": "User",
+        "id": "$webAppSPAppId"
+      }
+    ]
+  }
+}"@
 
 AzAPICall -method PATCH -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$webAppSPObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual'
 
-    #### Generate client secret
-    $body = @"
-    {
-    "passwordCredential":{
+# Generate client secret
+$body = @"
+{
+  "passwordCredential":{
     "displayName": "AzGovVizWebAppSecret"
-    }
-    }
-"@
+  }
+}"@
 
 $webAppSPAppSecret = (AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$webAppSPObjectId/addPassword" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual').secretText
-  ```
+```
 
-### 6. Create a Resource Group and assign the right RBAC Roles
+### 6. Create a resource group and assign necessary RBAC roles
 
-#### Azure Portal
+> NOTES:
+>
+> To assign roles, you must have '**Microsoft.Authorization/roleAssignments/write**' permissions on the target management group scope (such as the built-in RBAC role '**User Access Administrator**' or '**Owner**')
+>
+> Make sure that the resource provider _Microsoft.Web_ is registered on the subscription where the Azure Web App hosting AzGovViz will be deployed.
 
->NOTE
->To assign roles, you must have '__Microsoft.Authorization/roleAssignments/write__' permissions on the target Management Group scope (such as the built-in RBAC Role '__User Access Administrator__' or '__Owner__')
+**:point_up_2: From the Azure portal:**
 
-- Create a [new Resource Group](https://learn.microsoft.com/azure/azure-resource-manager/management/manage-resource-groups-portal#create-resource-groups) in Azure
-- [Assign the following roles](https://learn.microsoft.com/azure/role-based-access-control/role-assignments-portal) to the AzGovViz Service Principal the on the newly created Resource Group.
-  - [Website Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#website-contributor)
-  - [Web Plan Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#web-plan-contributor)
+1. Create a [new resource group](https://learn.microsoft.com/azure/azure-resource-manager/management/manage-resource-groups-portal#create-resource-groups) in Azure.
+1. [Assign the following roles](https://learn.microsoft.com/azure/role-based-access-control/role-assignments-portal) to the AzGovViz service principal the on the newly created resource group.
+    - [Website Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#website-contributor)
+    - [Web Plan Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#web-plan-contributor)
 
-#### PowerShell
+**:computer: Use PowerShell:**
 
->NOTE
->To assign roles, you must have '__Microsoft.Authorization/roleAssignments/write__' permissions on the target Management Group scope (such as the built-in RBAC Role '__User Access Administrator__' or '__Owner__')
+```powershell
+$subscriptionId = "<Subscription Id>"
+$resourceGroupName = "Name of the resource group where the Azure Web App will be created>"
+$location = "<Azure Region for the Azure Web App>"
 
-  ```POWERSHELL
-    $subscriptionId = "<Subscription Id>"
-    $resourceGroupName = "Name of the Resource Group where the Azure Web App will be created>"
-    $location = "<Azure Region for the Azure Web App>"
+Select-AzSubscription -SubscriptionId $subscriptionId
+New-AzResourceGroup -Name $resourceGroupName -Location $location
+New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "Web Plan Contributor" -ResourceGroupName $resourceGroupName
+New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "WebSite Contributor" -ResourceGroupName $resourceGroupName
+```
 
-    Select-AzSubscription -SubscriptionId $subscriptionId
-    New-AzResourceGroup -Name $resourceGroupName -Location $location
-    New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "Web Plan Contributor" -ResourceGroupName $resourceGroupName
-    New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "WebSite Contributor" -ResourceGroupName $resourceGroupName
+### 7. Create the GitHub secrets, variables, and permissions
 
-  ```
->NOTE
->Make sure that the resource provider _Microsoft.Web_ is registered on the subscription where the web app hosting AzGovViz will be hosted.
+**:point_up_2: From the GitHub website:**
 
-### 7. Create the GitHub secrets, variables and permissions
+1. Create the following [GitHub secrets](https://docs.github.com/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) on the repository.
 
-#### GitHub
+   | Secret | Value |
+   | :----- | :---- |
+   | **CLIENT_ID**           | Application ID of the identity that shall run Azure Governance Visualizer |
+   | **AAD_CLIENT_ID**       | Application ID of the identity that will be used to configure Microsoft Entra ID authentication to the Azure Web App |
+   | **AAD_CLIENT_SECRET**   | Secret of the identity that will be used to configure Azure AD authentication to the Azure Web App |
+   | **SUBSCRIPTION_ID**     | Azure subscription ID |
+   | **TENANT_ID**           | Microsoft Entra tenant ID |
+   | **MANAGEMENT_GROUP_ID** | Azure management group ID |
 
-- Create the following [GitHub secrets](https://docs.github.com/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) on the repository
+1. Create the following [GitHub variables](https://docs.github.com/actions/learn-github-actions/variables#creating-configuration-variables-for-an-organization) on the repository.
 
-| Secret                  | Value                                                                                                |
-| ----------------------- | ---------------------------------------------------------------------------------------------------- |
-| __CLIENT_ID__           | Application Id of the identity that shall run Azure Governance Visualizer                                  |
-| __AAD_CLIENT_ID__       | Application Id of the identity that will be used to configure Azure AD authentication to the Azure Web App |
-| __AAD_CLIENT_SECRET__   | Secret of the identity that will be used to configure Azure AD authentication to the Azure Web App   |
-| __SUBSCRIPTION_ID__     | Subscription Id                                                                                      |
-| __TENANT_ID__           | Tenant Id                                                                                            |
-| __MANAGEMENT_GROUP_ID__ | Management group Id                                                                                  |
+   | Variable                | Value                                                            |
+   | ----------------------- | ---------------------------------------------------------------- |
+   | **RESOURCE_GROUP_NAME** | Name of the pre-created resource group to host the Azure Web App |
+   | **WEB_APP_NAME**        | Globally unique name of the Azure Web App                        |
 
-- Create the following [GitHub variables](https://docs.github.com/actions/learn-github-actions/variables#creating-configuration-variables-for-an-organization) on the repository
+1. Enable GitHub actions to [create and approve pull requests](https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#preventing-github-actions-from-creating-or-approving-pull-requests) on the repository.
 
-| Variable                | Value                                                            |
-| ----------------------- | ---------------------------------------------------------------- |
-| __RESOURCE_GROUP_NAME__ | Name of the pre-created resource group to host the Azure Web App |
-| __WEB_APP_NAME__        | Globally unique name of the Azure Web App                        |
+**:computer: Use PowerShell and the GitHub CLI:**
 
-- Enable GitHub actions to [create and approve pull requests](https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#preventing-github-actions-from-creating-or-approving-pull-requests) on the repository.
+```powershell
+$subscriptionId = "<Azure subscription ID>"
+$tenantId = "<Microsoft Entra tenant ID>"
+$managementGroupId = $managementGroupId
+$resourceGroupName = $resourceGroupName
+$clientId = $AzGovVizAppId
+$aadClientId = $webAppSPAppId
+$aadClientSecret = $webAppSPAppSecret
 
-#### PowerShell
+# Create GitHub repository secrets and variables
+gh secret set 'CLIENT_ID' -b $clientId
+gh secret set 'AAD_CLIENT_ID' -b $aadClientId
+gh secret set 'AAD_CLIENT_SECRET' -b $aadClientSecret
+gh secret set 'SUBSCRIPTION_ID' -b $subscriptionId
+gh secret set 'TENANT_ID' -b $tenantId
+gh secret set 'MANAGEMENT_GROUP_ID' -b $managementGroupId
+gh variable set 'RESOURCE_GROUP_NAME' -b $resourceGroupName
+gh variable set 'WEB_APP_NAME' -b $webAppName
 
-- Create the needed secrets, variables and permissions
+# Configure GitHub actions permissions
+gh api -X PUT /repos/$GitHubOrg/$GitHubRepository/actions/permissions/workflow -F can_approve_pull_request_reviews=true
+```
 
-    ```POWERSHELL
-    ### Define variables
-    $subscriptionId = "<Subscription Id>"
-    $tenantId = "<Tenant Id>"
-    $managementGroupId = $managementGroupId
-    $resourceGroupName = $resourceGroupName
-    $clientId = $AzGovVizAppId
-    $aadClientId = $webAppSPAppId
-    $aadClientSecret = $webAppSPAppSecret
+### 8. Deploy Azure Governance Visualizer Azure resources and application
 
-    ### Create GitHub repository secrets and variables
-    gh secret set 'CLIENT_ID' -b $clientId
-    gh secret set 'AAD_CLIENT_ID' -b $aadClientId
-    gh secret set 'AAD_CLIENT_SECRET' -b $aadClientSecret
-    gh secret set 'SUBSCRIPTION_ID' -b $subscriptionId
-    gh secret set 'TENANT_ID' -b $tenantId
-    gh secret set 'MANAGEMENT_GROUP_ID' -b $managementGroupId
-    gh variable set 'RESOURCE_GROUP_NAME' -b $resourceGroupName
-    gh variable set 'WEB_APP_NAME' -b $webAppName
+1. Navigate to _Actions_ in your newly created repository.
 
-    ### Configure GitHub actions permissions
-    gh api -X PUT /repos/$GitHubOrg/$GitHubRepository/actions/permissions/workflow -F can_approve_pull_request_reviews=true
-    ```
+   ![Screenshot showing the GitHub actions pane](./media/actions_pane.png)
 
-## How to deploy
+1. Run the _DeployAzGovVizAccelerator_ workflow to initialize the accelerator, deploy the Azure Web App and configure Microsoft Entra authentication for it.
 
-To deploy the accelerator after having the pre-requisites ready, you need to perform the following steps:
+   ![Screenshot showing deploying the DeployAzGovVizAccelerator workflow](./media/run_deploy_accelerator_action.png)
 
-- Navigate to _Actions_ in your newly created repository
+   ![Screenshot showing the DeployAzGovVizAccelerator workflow executing](./media/deploy_accelerator_action_running.png)
 
-    ![Screenshot showing the GitHub actions pane](./media/actions_pane.png)
+   This workflow will trigger another workflow to sync the latest AzGovViz code to your repository.
 
-- Run the _DeployAzGovVizAccelerator_ workflow to initialize the accelerator, deploy the Azure Web App and configure Azure AD authentication for it
+   ![Screenshot showing the SyncAzGovViz workflow](./media/sync_AzGovViz_workflow.png)
 
-    ![Screenshot showing deploying the DeployAzGovVizAccelerator workflow](./media/run_deploy_accelerator_action.png)
+   You will have to add the [AzGovViz parameters](https://github.com/Azure/Azure-Governance-Visualizer#parameters) you need into the _DeployAzGovViz_ workflow and enable the schedule option if you want to continuously run Azure Governance Visualizer.
 
-    ![Screenshot showing the DeployAzGovVizAccelerator workflow executing](./media/deploy_accelerator_action_running.png)
+   ![Screenshot showing the path of the deployAzGovViz workflow](./media/deployAzGovViz_path.png)
 
-- This workflow will trigger another workflow to sync the latest AzGovViz code to your repository
+   ![Screenshot showing editing the AzGovViz parameters](./media/AzGovViz_param_editing.png)
 
-    ![Screenshot showing the SyncAzGovViz workflow](./media/sync_AzGovViz_workflow.png)
+   ![Screenshot showing editing the AzGovViz schedule](./media/cron_job.png)
 
-- You will have to add the [AzGovViz parameters](https://github.com/JulianHayward/Azure-MG-Sub-Governance-Reporting#parameters) you need into the _DeployAzGovViz_ workflow and enable the schedule option if you want to continuously run Azure Governance Visualizer.
+   As an example, you can add the _NoPIMEligibility_ parameter if you don't have PIM.
 
-    ![Screenshot showing the path of the deployAzGovViz workflow](./media/deployAzGovViz_path.png)
+   ![Screenshot showing editing the AzGovViz parameters](./media/adding_noPIM_parameter.png)
 
-    ![Screenshot showing editing the AzGovViz parameters](./media/AzGovViz_param_editing.png)
+1. Then, run the _DeployAzGovViz_ workflow to deploy AzGovViz and publish it to the Azure Web App
 
-    ![Screenshot showing editing the AzGovViz schedule](./media/cron_job.png)
+   ![Screenshot showing deploying AzGovViz](./media/deploy_AzGovViz_workflow.png)
 
-- As an example, I will add the _NoPIMEligibility_ parameter since I don't have PIM
+   ![Screenshot showing the AzGovViz workflow completion](./media/deployAzGovViz_complete.png)
 
-    ![Screenshot showing editing the AzGovViz parameters](./media/adding_noPIM_parameter.png)
+   ![Screenshot showing the AzGovViz web app](./media/azure_web_app.png)
 
-- Then, run the _DeployAzGovViz_ workflow to deploy AzGovViz and publish it to the Azure Web App
+   ![Screenshot showing the AzGovViz web app published](./media/azgovviz_published.png)
 
-    ![Screenshot showing deploying AzGovViz](./media/deploy_AzGovViz_workflow.png)
+## :checkered_flag: Try it out!
 
-    ![Screenshot showing the AzGovViz workflow completion](./media/deployAzGovViz_complete.png)
+TODO - Provide instructions on launching the visualizer.
 
-    ![Screenshot showing the AzGovViz web app](./media/azure_web_app.png)
+## :broom: Clean up resources
 
-    ![Screenshot showing the AzGovViz web app published](./media/azgovviz_published.png)
+If you were deploying the Azure Governance Visualizer for exploratory purposes, you'll want to delete the created Azure resources to prevent undesired costs from accruing and remove the related Microsoft Entra ID objects. Follow these steps to delete all resources created as part of this reference implementation.
 
-## Configuration
+TODO
+
+## Additional topics
 
 ### Azure Web App configuration
 
-- You can configure some aspects of the Azure Web application where AzGovViz is published by editing the _webApp.parameters.json_ file in the _bicep_ folder.
+You can configure some aspects of the Azure Web application where AzGovViz is published by editing the _webApp.parameters.json_ file in the _bicep_ folder.
 
-    ![Screenshot showing the Azure Web app parameters file](./media/webapp_params.png)
+![Screenshot showing the Azure Web app parameters file](./media/webapp_params.png)
 
-### Keeping Azure Governance Visualizer code up-to-date
+### Keep the Azure Governance Visualizer code up-to-date
 
-- To keep the Azure Governance Visualizer's code up-to-date, the workflow _SyncAzGovViz_ runs on a schedule to check for new versions. The default setting is that this is enabled to push updates automatically to your repository. If you need to control those new version updates, you will have to set _AutoUpdateAzGovViz_ to false so you would get a Pull Request every time there is a new version to review.
+To keep the Azure Governance Visualizer's code up-to-date, the workflow _SyncAzGovViz_ runs on a schedule to check for new versions. The default setting is that this is enabled to push updates automatically to your repository. If you need to control those new version updates, you will have to set _AutoUpdateAzGovViz_ to false so you would get a pull request every time there is a new version to review.
 
-    ![Screenshot showing syncAzGovViz workflow code with autoupdate set to true](./media/autoupdate_azgovviz.png)
+![Screenshot showing syncAzGovViz workflow code with autoupdate set to true](./media/autoupdate_azgovviz.png)
 
-### keeping the Azure Governance Visualizer Accelerator code up-to-date
+### Keep the Azure Governance Visualizer Accelerator code up-to-date
 
-- To keep the Azure Governance Visualizer Accelerator code up-to-date, the workflow _SyncAccelerator_ runs on a schedule to check for new versions. Everytime there is a new update to the accelerator's code, you would get a Pull Request submitted to your repository and the new release will be merged to a _releases_ folder where you can move to newer versions of this accelerator at your own pace.
+To keep the Azure Governance Visualizer Accelerator code up-to-date, the workflow _SyncAccelerator_ runs on a schedule to check for new versions. Everytime there is a new update to the accelerator's code, you would get a pull request submitted to your repository and the new release will be merged to a _releases_ folder where you can move to newer versions of this accelerator at your own pace.
 
 ## Sources to documentation
 
-For more information on Azure Governance Visualizer, please visit the [official docs](https://github.com/JulianHayward/Azure-MG-Sub-Governance-Reporting).
+For more information on Azure Governance Visualizer, please visit the [official docs](https://github.com/Azure/Azure-Governance-Visualizer).
