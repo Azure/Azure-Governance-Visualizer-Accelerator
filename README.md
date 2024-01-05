@@ -19,7 +19,7 @@ Follow these steps to deploy the Azure Governance Visualizer accelerator into yo
 1. Click on '**New registration**'
 1. Name your application (e.g. _AzureGovernanceVisualizer_SP_)
 1. Click '**Register**'
-1. Your App registration has been created. In the '**Overview**' copy the '**Application (client) ID**' as we will need it later to setup the secrets in GitHub.
+1. Your App registration has been created. In the '**Overview**' copy the '**Application (client) ID**' as you will need it later to setup the secrets in GitHub.
 1. Under '**Manage**' click on '**API permissions**'
    1. Click on '**Add a permissions**'
    1. Click on '**Microsoft Graph**'
@@ -348,10 +348,10 @@ New-AzRoleAssignment -ApplicationId $AzGovVizAppId -RoleDefinitionName "WebSite 
 
    | Secret | Value |
    | :----- | :---- |
-   | **CLIENT_ID**           | Application ID of the identity that shall run Azure Governance Visualizer |
-   | **ENTRA_CLIENT_ID**       | Application ID of the identity that will be used to configure Microsoft Entra ID authentication to the Azure Web App |
-   | **ENTRA_CLIENT_SECRET**   | Secret of the identity that will be used to configure Azure AD authentication to the Azure Web App |
-   | **SUBSCRIPTION_ID**     | Azure subscription ID |
+   | **CLIENT_ID**           | Application ID of the identity that will run Azure Governance Visualizer                               |
+   | **ENTRA_CLIENT_ID**     | Application ID of the identity that will be used to configure user authentication to the Azure Web App |
+   | **ENTRA_CLIENT_SECRET** | Secret of the identity that will be used to configure user authentication to the Azure Web App         |
+   | **SUBSCRIPTION_ID**     | Azure subscription ID     |
    | **TENANT_ID**           | Microsoft Entra tenant ID |
    | **MANAGEMENT_GROUP_ID** | Azure management group ID |
 
