@@ -137,14 +137,18 @@ Follow these steps to deploy the Azure Governance Visualizer accelerator into yo
          ]
        }
      ]
-   }"@
+   }
+"@
+
  
-   $AzGovVizAppObjectId = (AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/ v1.0/applications" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual').id
+   $AzGovVizAppObjectId = (AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual').id
+
  
    do {
      Write-Host "Waiting for the AzGovViz service principal to get created..."
      Start-Sleep -seconds 20
-     $AzGovVizAppId = (AzAPICall -method GET -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/       applications/$AzGovVizAppObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel  'eventual' -skipOnErrorCode 404).appId
+     $AzGovVizAppId = (AzAPICall -method GET -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$AzGovVizAppObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel  'eventual' -skipOnErrorCode 404).appId
+
    } until ($null -ne $AzGovVizAppId)
    
    Write-host "AzGovViz service principal created successfully."
@@ -223,7 +227,9 @@ $body = @"
   "subject":"$subject",
   "issuer":"https://token.actions.githubusercontent.com",
   "name":"AzGovVizCreds"
-}"@
+}
+"@
+
 
 AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$AzGovVizAppObjectId/federatedIdentityCredentials" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual'
 ```
@@ -285,7 +291,9 @@ $body = @"
       "enableIdTokenIssuance": true
     }
   }
-}"@
+}
+"@
+
 
 $webAppSP = AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual'
 $webAppSPAppId = $webAppSP.appId
@@ -316,7 +324,9 @@ $body = @"
       }
     ]
   }
-}"@
+}
+"@
+
 
 AzAPICall -method PATCH -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$webAppSPObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual'
 
@@ -326,7 +336,9 @@ $body = @"
   "passwordCredential":{
     "displayName": "AzGovVizWebAppSecret"
   }
-}"@
+}
+"@
+
 
 $webAppSPAppSecret = (AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$webAppSPObjectId/addPassword" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual').secretText
 ```
