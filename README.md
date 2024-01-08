@@ -93,9 +93,9 @@ Follow these steps to deploy the Azure Governance Visualizer accelerator into yo
    $apiEndPointVersion = '/v1.0'
    $api = '/servicePrincipals'
    $optionalQueryParameters = "?`$filter=(displayName eq 'Microsoft Graph')&$count=true&"
- 
+
    $uri = $apiEndPoint + $apiEndPointVersion + $api + $optionalQueryParameters
- 
+
    $azAPICallPayload = @{
        uri= $uri
        method= 'GET'
@@ -104,13 +104,13 @@ Follow these steps to deploy the Azure Governance Visualizer accelerator into yo
        noPaging= $true
        AzAPICallConfiguration = $azAPICallConf
    }
-   
+
    $graphApp = AzAPICall @azAPICallPayload
    $appRole = $graphApp.appRoles | Where-Object { $_.value -eq 'Application.Read.All' } | Select-Object -ExpandProperty id
    $userRole = $graphApp.appRoles | Where-Object { $_.value -eq 'User.Read.All' } | Select-Object -ExpandProperty id
    $groupRole = $graphApp.appRoles | Where-Object { $_.value -eq 'Group.Read.All' } | Select-Object -ExpandProperty id
    $pimRole = $graphApp.appRoles | Where-Object { $_.value -eq 'PrivilegedAccess.Read.AzureResources' } | Select-Object  -ExpandProperty id
-   
+
    $body = @"
    {
      "DisplayName":"$AzGovVizAppName",
@@ -146,7 +146,6 @@ Follow these steps to deploy the Azure Governance Visualizer accelerator into yo
      Write-Host "Waiting for the AzGovViz service principal to get created..."
      Start-Sleep -seconds 20
      $AzGovVizAppId = (AzAPICall -method GET -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$AzGovVizAppObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel  'eventual' -skipOnErrorCode 404).appId
-
    } until ($null -ne $AzGovVizAppId)
 
    Write-host "AzGovViz service principal created successfully."
@@ -325,7 +324,6 @@ $body = @"
 }
 "@
 
-
 AzAPICall -method PATCH -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$webAppSPObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual'
 
 # Generate client secret
@@ -336,7 +334,6 @@ $body = @"
   }
 }
 "@
-
 
 $webAppSPAppSecret = (AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$webAppSPObjectId/addPassword" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual').secretText
 ```
