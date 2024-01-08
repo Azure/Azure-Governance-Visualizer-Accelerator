@@ -138,19 +138,17 @@ Follow these steps to deploy the Azure Governance Visualizer accelerator into yo
        }
      ]
    }
-"@
+   "@
 
- 
    $AzGovVizAppObjectId = (AzAPICall -method POST -body $body -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel 'eventual').id
 
- 
    do {
      Write-Host "Waiting for the AzGovViz service principal to get created..."
      Start-Sleep -seconds 20
      $AzGovVizAppId = (AzAPICall -method GET -uri "$($azAPICallConf['azAPIEndpointUrls'].MicrosoftGraph)/v1.0/applications/$AzGovVizAppObjectId" -AzAPICallConfiguration $azAPICallConf -listenOn 'Content' -consistencyLevel  'eventual' -skipOnErrorCode 404).appId
 
    } until ($null -ne $AzGovVizAppId)
-   
+
    Write-host "AzGovViz service principal created successfully."
    ```
 
@@ -187,7 +185,7 @@ Result: A service principal is created with the necessary API permissions and ad
    $directoryToCloneAccelerator = "<Local directory to clone the Accelerator's repository>"
    $GitHubOrg = "<GitHub organization to use>"
    $GitHubRepository = "Azure-Governance-Visualizer"
- 
+
    ### Create a new repository from template
    gh repo create $GitHubRepository --template Azure/Azure-Governance-Visualizer-Accelerator --private
    New-Item -ItemType Directory -Path $directoryToCloneAccelerator -Force
