@@ -32,6 +32,6 @@ jobs:
           subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
           resourceGroupName: ${{vars.RESOURCE_GROUP_NAME}}
           template: ./bicep/webApp.bicep
-          parameters: ./bicep/webApp.parameters.json webAppName=${{vars.WEB_APP_NAME}} managementGroupId=${{secrets.MANAGEMENT_GROUP_ID}} clientId=${{ secrets.AAD_CLIENT_ID }} clientSecret=${{ secrets.AAD_CLIENT_SECRET }}
+          parameters: ./bicep/webApp.parameters.json webAppName=${{vars.WEB_APP_NAME}} managementGroupId=${{secrets.MANAGEMENT_GROUP_ID}} clientId=${{ secrets.ENTRA_CLIENT_ID }} clientSecret=${{ secrets.ENTRA_CLIENT_SECRET }}
           failOnStdErr: false
 
