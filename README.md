@@ -6,22 +6,24 @@
 
 ## Table of contents
 
-- [Deployment guide](#rocket-deployment-guide)
-  - [1. Create a service principal (Microsoft Entra ID app registration) to run Azure Governance Visualizer](#1-create-a-service-principal-microsoft-entra-id-app-registration-to-run-azure-governance-visualizer)
-  - [2. Create copy of the Azure Governance Visualizer accerlator in your own GitHub repository](#2-create-copy-of-the-azure-governance-visualizer-accerlator-in-your-own-github-repository)
-  - [3. Configure federated credentials for the service principal created in the first step](#3-configure-federated-credentials-for-the-service-principal-created-in-the-first-step)
-  - [4. Grant permissions in Azure for the AzGovViz service principal created in the first step](#4-grant-permissions-in-azure-for-the-azgovviz-service-principal-created-in-the-first-step)
-  - [5. Create a Microsoft Entra application for user authentication to the Azure Web App that will host AzGovViz](#5-create-a-microsoft-entra-application-for-user-authentication-to-the-azure-web-app-that-will-host-azgovviz)
-  - [6. Create a resource group and assign necessary RBAC roles](#6-create-a-resource-group-and-assign-necessary-rbac-roles)
-  - [7. Create the GitHub secrets, variables, and permissions](#7-create-the-github-secrets-variables-and-permissions)
-  - [8. Deploy Azure Governance Visualizer Azure resources and application](#8-deploy-azure-governance-visualizer-azure-resources-and-application)
-- [Try it out!](#checkered_flag-try-it-out)
-- [Clean up resources](#broom-clean-up-resources)
-- [Additional topics](#additional-topics)
-  - [Azure Web App configuration](#azure-web-app-configuration)
-  - [Keep the Azure Governance Visualizer code up-to-date](#keep-the-azure-governance-visualizer-code-up-to-date)
-  - [Keep the Azure Governance Visualizer Accelerator code up-to-date](#keep-the-azure-governance-visualizer-accelerator-code-up-to-date)
-- [Sources to documentation](#sources-to-documentation)
+- [Azure Governance Visualizer (AzGovViz) accelerator](#azure-governance-visualizer-azgovviz-accelerator)
+  - [Table of contents](#table-of-contents)
+  - [:rocket: Deployment guide](#rocket-deployment-guide)
+    - [1. Create a service principal (Microsoft Entra ID app registration) to run Azure Governance Visualizer](#1-create-a-service-principal-microsoft-entra-id-app-registration-to-run-azure-governance-visualizer)
+    - [2. Create copy of the Azure Governance Visualizer accerlator in your own GitHub repository](#2-create-copy-of-the-azure-governance-visualizer-accerlator-in-your-own-github-repository)
+    - [3. Configure federated credentials for the service principal created in the first step](#3-configure-federated-credentials-for-the-service-principal-created-in-the-first-step)
+    - [4. Grant permissions in Azure for the AzGovViz service principal created in the first step](#4-grant-permissions-in-azure-for-the-azgovviz-service-principal-created-in-the-first-step)
+    - [5. Create a Microsoft Entra application for user authentication to the Azure Web App that will host AzGovViz](#5-create-a-microsoft-entra-application-for-user-authentication-to-the-azure-web-app-that-will-host-azgovviz)
+    - [6. Create a resource group and assign necessary RBAC roles](#6-create-a-resource-group-and-assign-necessary-rbac-roles)
+    - [7. Create the GitHub secrets, variables, and permissions](#7-create-the-github-secrets-variables-and-permissions)
+    - [8. Deploy Azure Governance Visualizer Azure resources and application](#8-deploy-azure-governance-visualizer-azure-resources-and-application)
+  - [:checkered\_flag: Try it out!](#checkered_flag-try-it-out)
+  - [:broom: Clean up resources](#broom-clean-up-resources)
+  - [Additional topics](#additional-topics)
+    - [Azure Web App configuration](#azure-web-app-configuration)
+    - [Keep the Azure Governance Visualizer code up-to-date](#keep-the-azure-governance-visualizer-code-up-to-date)
+    - [Keep the Azure Governance Visualizer Accelerator code up-to-date](#keep-the-azure-governance-visualizer-accelerator-code-up-to-date)
+  - [Sources to documentation](#sources-to-documentation)
 
 ## :rocket: Deployment guide
 
@@ -455,13 +457,16 @@ gh api -X PUT /repos/$GitHubOrg/$GitHubRepository/actions/permissions/workflow -
 
 ## :checkered_flag: Try it out!
 
-TODO - Provide instructions on launching the visualizer.
+Once the _DeployAzGovViz_ workflow has been ran successfully, navigate to the Azure Web App on the Azure portal and click _Browse_ to access the visualizer. You'll notice that you'll need to be authenticated with Microsoft Entra ID.
 
 ## :broom: Clean up resources
 
 If you were deploying the Azure Governance Visualizer for exploratory purposes, you'll want to delete the created Azure resources to prevent undesired costs from accruing and remove the related Microsoft Entra ID objects. Follow these steps to delete all resources created as part of this reference implementation.
 
-TODO
+1. Delete the create resource group.
+2. Delete the private GitHub repository.
+3. Delete the local copy of the GitHub repository created on your machine.
+4. Delete the two service principals created for the AzGovViz authorization and the Azure Web App Entra ID authentication.
 
 ## Additional topics
 
