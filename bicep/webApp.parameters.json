@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "sku": {
-      "value": "F1"
+      "value": "B1"
     },
     "runtimeStack": {
       "value": "DOTNETCORE|7.0"
