@@ -488,4 +488,4 @@ To keep the Azure Governance Visualizer Accelerator code up-to-date, the workflo
 
 ## Sources to documentation
 
-For more information on Azure Governance Visualizer, please visit the [official docs](https://github.com/Azure/Azure-Governance-Visualizer).
+For more information on Azure Governance Visualizer, please visit the [official docs](https://github.com/Azure/Azure-Governance-Visualizer) and the [Azure landing zone documentation](https://learn.microsoft.com/azure/architecture/landing-zones/azure-governance-visualizer-accelerator).
