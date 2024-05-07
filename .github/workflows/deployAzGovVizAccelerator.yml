@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       authorizedGroupId:
-        description: 'Authorized Group Id to access the AzGovViz webapp'
+        description: 'Authorized Group object Id to access the AzGovViz webapp'
         required: true
 jobs:
   AzureGovernanceVisualizer:
