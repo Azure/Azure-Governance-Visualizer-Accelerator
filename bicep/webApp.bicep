@@ -33,6 +33,9 @@ param clientSecret string
 @description('The AzGovViz management group ID')
 param managementGroupId string
 
+@description('The authorized groups IDs to access the web app')
+param authorizedGroupId string
+
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: appServicePlanName
   location: location
@@ -77,6 +80,15 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
             openIdIssuer: '${environment().authentication.loginEndpoint}/${tenantId}/v2.0'
             clientId: clientId
             clientSecretSettingName: 'AzureAdClientSecret'
+          }
+          validation: {
+            defaultAuthorizationPolicy: {
+              allowedPrincipals: {
+                groups: [
+                  authorizedGroupId
+                ]
+              }
+            }
           }
         }
       }
