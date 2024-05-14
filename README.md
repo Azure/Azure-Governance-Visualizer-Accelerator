@@ -316,7 +316,7 @@ $body = @"
   "identifierUris" : [
     "api://$webAppSPAppId"
   ],
-  "groupMembershipClaims" : "SecurityGroup"
+  "groupMembershipClaims" : "SecurityGroup",
   "api": {
     "oauth2PermissionScopes": [
       {

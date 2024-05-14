@@ -109,6 +109,7 @@ resource webApp 'Microsoft.Web/sites@2023-01-01' = {
     name: 'appsettings'
     properties: {
       AzureAdClientSecret: clientSecret
+      WEBSITE_AUTH_AAD_ALLOWED_TENANTS: tenantId
     }
   }
 
