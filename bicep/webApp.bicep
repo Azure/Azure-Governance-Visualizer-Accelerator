@@ -45,7 +45,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   kind: kind
 }
 
-resource webApp 'Microsoft.Web/sites@2022-03-01' = {
+resource webApp 'Microsoft.Web/sites@2023-01-01' = {
   name: webAppName
   location: location
   properties: {
@@ -73,6 +73,11 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
         redirectToProvider: 'azureActiveDirectory'
         unauthenticatedClientAction: 'RedirectToLoginPage'
       }
+      login: {
+        tokenStore: {
+          enabled: true
+        }
+      }
       identityProviders: {
         azureActiveDirectory: {
           enabled: true
@@ -82,6 +87,11 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
             clientSecretSettingName: 'AzureAdClientSecret'
           }
           validation: {
+            jwtClaimChecks: {
+              allowedGroups: [
+                authorizedGroupId
+              ]
+            }
             defaultAuthorizationPolicy: {
               allowedPrincipals: {
                 groups: [
