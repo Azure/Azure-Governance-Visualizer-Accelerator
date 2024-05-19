@@ -428,7 +428,7 @@ gh api -X PUT /repos/$GitHubOrg/$GitHubRepository/actions/permissions/workflow -
 
    ![Screenshot showing the GitHub actions pane](./media/actions_pane.png)
 
-1. Run the _DeployAzGovVizAccelerator_ workflow to initialize the accelerator, deploy the Azure Web App and configure Microsoft Entra authentication for it. Enter the ObjectId of the Entra ID group that will have access to the web application.
+2. Run the _DeployAzGovVizAccelerator_ workflow to initialize the accelerator, deploy the Azure Web App and configure Microsoft Entra authentication for it. By default, the web app is accessible to any authenticated user in the current tenant. To limit access to certain users, provide the ObjectId of an Entra ID group.
 
    ![Screenshot showing deploying the DeployAzGovVizAccelerator workflow](./media/run_deploy_accelerator_action_input.png)
 
@@ -450,7 +450,7 @@ gh api -X PUT /repos/$GitHubOrg/$GitHubRepository/actions/permissions/workflow -
 
    ![Screenshot showing editing the AzGovViz parameters](./media/adding_noPIM_parameter.png)
 
-1. Then, run the _DeployAzGovViz_ workflow to deploy AzGovViz and publish it to the Azure Web App
+3. Then, run the _DeployAzGovViz_ workflow to deploy AzGovViz and publish it to the Azure Web App
 
    ![Screenshot showing deploying AzGovViz](./media/deploy_AzGovViz_workflow.png)
 
