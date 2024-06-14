@@ -33,6 +33,9 @@ param clientSecret string
 @description('The AzGovViz management group ID')
 param managementGroupId string
 
+@description('The authorized groups IDs to access the web app')
+param authorizedGroupId string
+
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: appServicePlanName
   location: location
@@ -42,7 +45,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   kind: kind
 }
 
-resource webApp 'Microsoft.Web/sites@2022-03-01' = {
+resource webApp 'Microsoft.Web/sites@2023-01-01' = {
   name: webAppName
   location: location
   properties: {
@@ -70,6 +73,11 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
         redirectToProvider: 'azureActiveDirectory'
         unauthenticatedClientAction: 'RedirectToLoginPage'
       }
+      login: {
+        tokenStore: {
+          enabled: true
+        }
+      }
       identityProviders: {
         azureActiveDirectory: {
           enabled: true
@@ -77,6 +85,20 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
             openIdIssuer: '${environment().authentication.loginEndpoint}/${tenantId}/v2.0'
             clientId: clientId
             clientSecretSettingName: 'AzureAdClientSecret'
+          }
+          validation: {
+            jwtClaimChecks: {
+              allowedGroups: [
+                authorizedGroupId
+              ]
+            }
+            defaultAuthorizationPolicy: {
+              allowedPrincipals: {
+                groups: [
+                  authorizedGroupId
+                ]
+              }
+            }
           }
         }
       }
@@ -87,6 +109,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
     name: 'appsettings'
     properties: {
       AzureAdClientSecret: clientSecret
+      WEBSITE_AUTH_AAD_ALLOWED_TENANTS: tenantId
     }
   }
 
