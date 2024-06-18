@@ -1,3 +1,5 @@
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Azure/Azure-Governance-Visualizer-Accelerator/badge)](https://scorecard.dev/viewer/?uri=github.com/Azure/Azure-Governance-Visualizer-Accelerator)
+
 # Azure Governance Visualizer (AzGovViz) accelerator
 
 [Azure Governance Visualizer](https://github.com/Azure/Azure-Governance-Visualizer) is a PowerShell based script that iterates your Azure tenant's management group hierarchy down to the subscription level. It captures most relevant Azure governance capabilities such as Azure Policy, role-based access control (RBAC), Blueprints, and a lot more. From the collected data Azure Governance Visualizer provides visibility on your HierarchyMap, creates a TenantSummary, creates DefinitionInsights and builds granular ScopeInsights on management groups and subscriptions.
