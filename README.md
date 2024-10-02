@@ -260,21 +260,27 @@ New-AzRoleAssignment `
 1. Create an [app registration](https://learn.microsoft.com/entra/identity-platform/quickstart-register-app#register-an-application) in Microsoft Entra ID for your Azure App Web App.
 
    In the Redirect URIs section, select Web for platform and type the URI in the following format: "https://<webapp_name>.azurewebsites.net/.auth/login/aad/callback"
-2. Click on _Authentication_ and under _Implicit grant and hybrid flows_, enable ID tokens to allow OpenID Connect user sign-ins from App Service. Select Save.
+
+2. Create a secret for your app registration: Certificates & secrets > Client secrets > New client secret > Enter a description and expiration date > Add
+
+   Copy the secret's value and store it in a safe place, keeping mind you won't be able to view it again later
+   ![image](https://github.com/user-attachments/assets/dbe9d21f-b0a9-4ad8-9b0f-fbb26d5ac64b)
+
+4. Click on _Authentication_ and under _Implicit grant and hybrid flows_, enable ID tokens to allow OpenID Connect user sign-ins from App Service. Select Save.
 
    ![Screenshot showing enabling Open ID in app registration](./media/app_registration_openID.png)
 
-3. From the left navigation, select Expose an API > Add > Save.
+5. From the left navigation, select Expose an API > Add > Save.
 
    ![Screenshot showing exposing an API](./media/app_registration_expose_api.png)
 
    ![Screenshot showing exposing an API](./media/app_registration_expose_api_add.png)
 
-4. Click on _Add a scope_ and provide the values as the screenshot.
+6. Click on _Add a scope_ and provide the values as the screenshot.
 
    ![Screenshot showing adding a scope to the API](./media/app_registration_expose_api_addScope.png)
 
-5. From the left navigation, select Manifest and set "groupMembershipClaims" to "SecurityGroup".
+7. From the left navigation, select Manifest and set "groupMembershipClaims" to "SecurityGroup".
 
    ![Screenshot showing adding a scope to the API](./media/app_registration_groupsClaim.png)
 
@@ -430,7 +436,7 @@ gh api -X PUT /repos/$GitHubOrg/$GitHubRepository/actions/permissions/workflow -
 
    ![Screenshot showing the GitHub actions pane](./media/actions_pane.png)
 
-2. Run the _DeployAzGovVizAccelerator_ workflow to initialize the accelerator, deploy the Azure Web App and configure Microsoft Entra authentication for it. By default, the web app is accessible to any authenticated user in the current tenant. To limit access to certain users, provide the ObjectId of an Entra ID group.
+2. Run the _DeployAzGovVizAccelerator_ workflow to initialize the accelerator, deploy the Azure Web App and configure Microsoft Entra authentication for it. By default, the web app is accessible to any authenticated user in the current tenant. To limit access to certain users, provide the ObjectId of an Entra ID group. Important note: the group must be of type _Security_ and not _Microsoft 365_.
 
    ![Screenshot showing deploying the DeployAzGovVizAccelerator workflow](./media/run_deploy_accelerator_action_input.png)
 
