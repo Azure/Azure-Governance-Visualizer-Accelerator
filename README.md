@@ -264,7 +264,7 @@ New-AzRoleAssignment `
 2. Create a secret for your app registration: Certificates & secrets > Client secrets > New client secret > Enter a description and expiration date > Add
 
    Copy the secret's value and store it in a safe place, keeping mind you won't be able to view it again later
-   ![image](https://github.com/user-attachments/assets/dbe9d21f-b0a9-4ad8-9b0f-fbb26d5ac64b)
+    <img width="971" alt="image" src="https://github.com/user-attachments/assets/8132e138-bab5-4e04-ab4b-d82eb51afc2f">
 
 4. Click on _Authentication_ and under _Implicit grant and hybrid flows_, enable ID tokens to allow OpenID Connect user sign-ins from App Service. Select Save.
 
