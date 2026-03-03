@@ -29,7 +29,7 @@ jobs:
       - name: Deploy web app to Azure
         id: deployWebApp
         if: ${{github.event.inputs.PublishTo}} == 'Azure Web App'
-        uses: azure/arm-deploy@v1
+        uses: azure/arm-deploy@v2
         with:
           scope: resourcegroup
           subscriptionId: ${{ secrets.SUBSCRIPTION_ID }}
