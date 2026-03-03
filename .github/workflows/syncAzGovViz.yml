@@ -27,7 +27,7 @@ jobs:
     if: (${{ github.event.workflow_run.conclusion == 'success' }} || ${{github.event_name == 'workflow_dispatch'}} || ${{github.event_name == 'schedule'}}) && ${{ github.repository != 'Azure/Azure-Governance-Visualizer-Accelerator' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: UpdateAzGovVizAutomatically
         continue-on-error: true
